@@ -11,6 +11,8 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppRouteImport } from './routes/_app'
+import { Route as AboutRouteImport } from './routes/about'
+import { Route as StartRouteImport } from './routes/start'
 import { Route as AppCheckInsRouteImport } from './routes/_app/check-ins'
 import { Route as AppMemoryRouteImport } from './routes/_app/memory'
 import { Route as AppTalkRouteImport } from './routes/_app/talk'
@@ -25,6 +27,16 @@ const IndexRoute = IndexRouteImport.update({
 } as any)
 const AppRoute = AppRouteImport.update({
   id: '/_app',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StartRoute = StartRouteImport.update({
+  id: '/start',
+  path: '/start',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppCheckInsRoute = AppCheckInsRouteImport.update({
@@ -60,6 +72,8 @@ const ApiMemoryRoute = ApiMemoryRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/start': typeof StartRoute
   '/check-ins': typeof AppCheckInsRoute
   '/memory': typeof AppMemoryRoute
   '/talk': typeof AppTalkRoute
@@ -69,6 +83,8 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/start': typeof StartRoute
   '/check-ins': typeof AppCheckInsRoute
   '/memory': typeof AppMemoryRoute
   '/talk': typeof AppTalkRoute
@@ -80,6 +96,8 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_app': typeof AppRouteWithChildren
+  '/about': typeof AboutRoute
+  '/start': typeof StartRoute
   '/_app/check-ins': typeof AppCheckInsRoute
   '/_app/memory': typeof AppMemoryRoute
   '/_app/talk': typeof AppTalkRoute
@@ -91,6 +109,8 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/about'
+    | '/start'
     | '/check-ins'
     | '/memory'
     | '/talk'
@@ -100,6 +120,8 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/about'
+    | '/start'
     | '/check-ins'
     | '/memory'
     | '/talk'
@@ -110,6 +132,8 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_app'
+    | '/about'
+    | '/start'
     | '/_app/check-ins'
     | '/_app/memory'
     | '/_app/talk'
@@ -121,6 +145,8 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRouteWithChildren
+  AboutRoute: typeof AboutRoute
+  StartRoute: typeof StartRoute
   ApiCompanionRoute: typeof ApiCompanionRoute
   ApiMemoryRoute: typeof ApiMemoryRoute
 }
@@ -139,6 +165,20 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/start': {
+      id: '/start'
+      path: '/start'
+      fullPath: '/start'
+      preLoaderRoute: typeof StartRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_app/check-ins': {
@@ -205,6 +245,8 @@ const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRouteWithChildren,
+  AboutRoute: AboutRoute,
+  StartRoute: StartRoute,
   ApiCompanionRoute: ApiCompanionRoute,
   ApiMemoryRoute: ApiMemoryRoute,
 }

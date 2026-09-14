@@ -8,6 +8,8 @@ In some places, including Illinois, using AI as therapy is restricted. This app 
 
 ## What’s here
 
+- **Home** — a landing page with photographs of the space
+- **About** — what Still is and is not, plus human resources
 - **Talk** — a warm, unhurried conversation
 - **Memory** — themes, people, what helped, goals you set — view, edit, or delete
 - **Check-ins** — optional, never guilt-based

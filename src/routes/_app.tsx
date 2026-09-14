@@ -14,7 +14,7 @@ function AppLayout() {
 
   if (!hydrated) return <Splash />;
   if (!onboarded) {
-    void navigate({ to: "/" });
+    void navigate({ to: "/start" });
     return <Splash />;
   }
 

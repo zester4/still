@@ -120,6 +120,9 @@ function YouPage() {
         </div>
         <div className="mt-4 flex flex-wrap gap-2">
           <Button variant="quiet" asChild>
+            <Link to="/about">About Still</Link>
+          </Button>
+          <Button variant="quiet" asChild>
             <Link to="/memory">Review memory</Link>
           </Button>
           <Button variant="quiet" asChild>
