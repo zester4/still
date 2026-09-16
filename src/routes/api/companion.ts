@@ -7,7 +7,7 @@ import {
   sseEvent,
   streamCompanion,
   type ChatTurn,
-} from "@/lib/companion/xai.server";
+} from "@/lib/companion/llm.server";
 import type { Intent, MemoryItem } from "@/lib/companion/types";
 
 type Body = {

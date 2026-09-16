@@ -51,7 +51,16 @@ function YouPage() {
         {conversations.length === 1 ? "page" : "pages"} of talk. {memories.length} remembered.
       </p>
 
-      <section className="mt-8 rounded-xl bg-surface p-5 shadow-[var(--shadow-border)]">
+      <section className="mt-8 grid gap-2 sm:grid-cols-2">
+        <Place to="/pages" title="Pages" body="Past talks, kept as they were." />
+        <Place to="/quiet" title="Quiet" body="Sit, notice the room, or a hard night." />
+        <Place to="/letters" title="Letters" body="Write something you don't have to send." />
+        <Place to="/patterns" title="Patterns" body="How the weeks have felt. Not a score." />
+        <Place to="/memory" title="Memory" body="What you asked Still to keep." />
+        <Place to="/check-ins" title="Check-ins" body="A knock, if you want one." />
+      </section>
+
+      <section className="mt-4 rounded-xl bg-surface p-5 shadow-[var(--shadow-border)]">
         <Label htmlFor="you-name">What to call you</Label>
         <div className="mt-2 flex gap-2">
           <Input
@@ -188,6 +197,18 @@ function YouPage() {
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+function Place({ to, title, body }: { to: "/pages" | "/quiet" | "/letters" | "/patterns" | "/memory" | "/check-ins"; title: string; body: string }) {
+  return (
+    <Link
+      to={to}
+      className="rounded-xl bg-surface px-4 py-4 shadow-[var(--shadow-border)] transition-[box-shadow] duration-150 hover:shadow-[var(--shadow-border-hover)]"
+    >
+      <p className="text-sm font-medium text-fg">{title}</p>
+      <p className="mt-1 text-sm leading-relaxed text-muted">{body}</p>
+    </Link>
   );
 }
 

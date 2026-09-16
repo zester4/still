@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { aiAvailable, extractMemories, type ChatTurn } from "@/lib/companion/xai.server";
+import { aiAvailable, extractMemories, type ChatTurn } from "@/lib/companion/llm.server";
 import type { MemoryItem } from "@/lib/companion/types";
 
 type Body = {

@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useRef, useState } from "react";
 import { Thread } from "@/components/chat/thread";
 import { Composer } from "@/components/chat/composer";
@@ -171,17 +171,22 @@ function TalkPage() {
             <p className="text-xs text-muted">Whenever you're ready</p>
           )}
         </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => {
-            startNewPage();
-            setPulseOpen(false);
-            setNotice(null);
-          }}
-        >
-          New page
-        </Button>
+        <div className="flex shrink-0 items-center gap-1">
+          <Button variant="ghost" size="sm" asChild>
+            <Link to="/pages">Pages</Link>
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              startNewPage();
+              setPulseOpen(false);
+              setNotice(null);
+            }}
+          >
+            New page
+          </Button>
+        </div>
       </div>
 
       {checkInOpen ? (

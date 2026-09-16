@@ -7,6 +7,7 @@ import type {
   CheckInEntry,
   Conversation,
   Intent,
+  Letter,
   MemoryItem,
   Mood,
   PulseValue,
@@ -37,6 +38,9 @@ type StillActions = {
   addMemories: (items: Omit<MemoryItem, "id" | "createdAt" | "updatedAt">[]) => MemoryItem[];
   upsertMemory: (item: MemoryItem) => void;
   deleteMemory: (id: string) => void;
+  openConversation: (id: string) => void;
+  upsertLetter: (item: Letter) => void;
+  deleteLetter: (id: string) => void;
   setCheckIns: (patch: Partial<StillState["checkIns"]>) => void;
   snoozeCheckIn: () => void;
   answerCheckIn: (mood: Mood, note: string) => void;
@@ -52,6 +56,7 @@ const emptyState = (): Omit<StillState, "hydrated"> => ({
   conversations: [],
   activeConversationId: null,
   memories: [],
+  letters: [],
   checkIns: {
     enabled: false,
     frequency: "few",
@@ -227,6 +232,31 @@ export const useStillStore = create<StillState & StillActions>()(
         set((s) => ({ memories: s.memories.filter((m) => m.id !== id) }));
       },
 
+      openConversation: (id) => {
+        if (get().conversations.some((c) => c.id === id)) {
+          set({ activeConversationId: id });
+        }
+      },
+
+      upsertLetter: (item) => {
+        set((s) => {
+          const letters = s.letters ?? [];
+          const exists = letters.some((l) => l.id === item.id);
+          if (exists) {
+            return {
+              letters: letters.map((l) =>
+                l.id === item.id ? { ...item, updatedAt: nowIso() } : l,
+              ),
+            };
+          }
+          return { letters: [{ ...item, updatedAt: nowIso() }, ...letters] };
+        });
+      },
+
+      deleteLetter: (id) => {
+        set((s) => ({ letters: (s.letters ?? []).filter((l) => l.id !== id) }));
+      },
+
       setCheckIns: (patch) => {
         set((s) => ({ checkIns: { ...s.checkIns, ...patch } }));
       },
@@ -273,6 +303,7 @@ export const useStillStore = create<StillState & StillActions>()(
           concerns: s.concerns,
           conversations: s.conversations,
           memories: s.memories,
+          letters: s.letters ?? [],
           checkIns: s.checkIns,
           pulses: s.pulses,
           createdAt: s.createdAt,
@@ -293,6 +324,7 @@ export const useStillStore = create<StillState & StillActions>()(
         return rest;
       },
       onRehydrateStorage: () => (state) => {
+        if (state && !state.letters) state.letters = [];
         state?.setHydrated();
       },
     },

@@ -8,10 +8,13 @@ In some places, including Illinois, using AI as therapy is restricted. This app 
 
 ## What’s here
 
-- **Home** — a landing page with photographs of the space
-- **About** — what Still is and is not, plus human resources
+- **Home / About** — a public landing, and an honest account of what this is
 - **Talk** — a warm, unhurried conversation
+- **Pages** — past talks, kept as they were
 - **Memory** — themes, people, what helped, goals you set — view, edit, or delete
+- **Quiet** — optional sitting, noticing the room, or a hard-night door
+- **Letters** — write something you don’t have to send
+- **Patterns** — how the weeks have felt, not a score
 - **Check-ins** — optional, never guilt-based
 - **You** — disclosure, data export/erase, human resources
 - **Safety** — crisis language takes a hard-coded path (presence + real helplines), not a free-generated reply
@@ -29,7 +32,7 @@ npm install
 npm run dev
 ```
 
-The app expects `XAI_API_KEY` on the server for the full companion model. If the model is unreachable, Still stays present with an on-device listener. Crisis handling never depends on the model.
+The companion talks through **OpenRouter** when `OPENROUTER_API_KEY` is set on the server (see `.env.example`). You can choose a model with `OPENROUTER_MODEL`. If the model is unreachable, Still stays present with an on-device listener. Crisis handling never depends on the model.
 
 If this is a hard moment, reach a person:
 

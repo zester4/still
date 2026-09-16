@@ -14,7 +14,11 @@ import { Route as AppRouteImport } from './routes/_app'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as StartRouteImport } from './routes/start'
 import { Route as AppCheckInsRouteImport } from './routes/_app/check-ins'
+import { Route as AppLettersRouteImport } from './routes/_app/letters'
 import { Route as AppMemoryRouteImport } from './routes/_app/memory'
+import { Route as AppPagesRouteImport } from './routes/_app/pages'
+import { Route as AppPatternsRouteImport } from './routes/_app/patterns'
+import { Route as AppQuietRouteImport } from './routes/_app/quiet'
 import { Route as AppTalkRouteImport } from './routes/_app/talk'
 import { Route as AppYouRouteImport } from './routes/_app/you'
 import { Route as ApiCompanionRouteImport } from './routes/api/companion'
@@ -44,9 +48,29 @@ const AppCheckInsRoute = AppCheckInsRouteImport.update({
   path: '/check-ins',
   getParentRoute: () => AppRoute,
 } as any)
+const AppLettersRoute = AppLettersRouteImport.update({
+  id: '/letters',
+  path: '/letters',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppMemoryRoute = AppMemoryRouteImport.update({
   id: '/memory',
   path: '/memory',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPagesRoute = AppPagesRouteImport.update({
+  id: '/pages',
+  path: '/pages',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPatternsRoute = AppPatternsRouteImport.update({
+  id: '/patterns',
+  path: '/patterns',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppQuietRoute = AppQuietRouteImport.update({
+  id: '/quiet',
+  path: '/quiet',
   getParentRoute: () => AppRoute,
 } as any)
 const AppTalkRoute = AppTalkRouteImport.update({
@@ -75,7 +99,11 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/start': typeof StartRoute
   '/check-ins': typeof AppCheckInsRoute
+  '/letters': typeof AppLettersRoute
   '/memory': typeof AppMemoryRoute
+  '/pages': typeof AppPagesRoute
+  '/patterns': typeof AppPatternsRoute
+  '/quiet': typeof AppQuietRoute
   '/talk': typeof AppTalkRoute
   '/you': typeof AppYouRoute
   '/api/companion': typeof ApiCompanionRoute
@@ -86,7 +114,11 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/start': typeof StartRoute
   '/check-ins': typeof AppCheckInsRoute
+  '/letters': typeof AppLettersRoute
   '/memory': typeof AppMemoryRoute
+  '/pages': typeof AppPagesRoute
+  '/patterns': typeof AppPatternsRoute
+  '/quiet': typeof AppQuietRoute
   '/talk': typeof AppTalkRoute
   '/you': typeof AppYouRoute
   '/api/companion': typeof ApiCompanionRoute
@@ -99,7 +131,11 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/start': typeof StartRoute
   '/_app/check-ins': typeof AppCheckInsRoute
+  '/_app/letters': typeof AppLettersRoute
   '/_app/memory': typeof AppMemoryRoute
+  '/_app/pages': typeof AppPagesRoute
+  '/_app/patterns': typeof AppPatternsRoute
+  '/_app/quiet': typeof AppQuietRoute
   '/_app/talk': typeof AppTalkRoute
   '/_app/you': typeof AppYouRoute
   '/api/companion': typeof ApiCompanionRoute
@@ -112,7 +148,11 @@ export interface FileRouteTypes {
     | '/about'
     | '/start'
     | '/check-ins'
+    | '/letters'
     | '/memory'
+    | '/pages'
+    | '/patterns'
+    | '/quiet'
     | '/talk'
     | '/you'
     | '/api/companion'
@@ -123,7 +163,11 @@ export interface FileRouteTypes {
     | '/about'
     | '/start'
     | '/check-ins'
+    | '/letters'
     | '/memory'
+    | '/pages'
+    | '/patterns'
+    | '/quiet'
     | '/talk'
     | '/you'
     | '/api/companion'
@@ -135,7 +179,11 @@ export interface FileRouteTypes {
     | '/about'
     | '/start'
     | '/_app/check-ins'
+    | '/_app/letters'
     | '/_app/memory'
+    | '/_app/pages'
+    | '/_app/patterns'
+    | '/_app/quiet'
     | '/_app/talk'
     | '/_app/you'
     | '/api/companion'
@@ -188,11 +236,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppCheckInsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/letters': {
+      id: '/_app/letters'
+      path: '/letters'
+      fullPath: '/letters'
+      preLoaderRoute: typeof AppLettersRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/memory': {
       id: '/_app/memory'
       path: '/memory'
       fullPath: '/memory'
       preLoaderRoute: typeof AppMemoryRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/pages': {
+      id: '/_app/pages'
+      path: '/pages'
+      fullPath: '/pages'
+      preLoaderRoute: typeof AppPagesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/patterns': {
+      id: '/_app/patterns'
+      path: '/patterns'
+      fullPath: '/patterns'
+      preLoaderRoute: typeof AppPatternsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/quiet': {
+      id: '/_app/quiet'
+      path: '/quiet'
+      fullPath: '/quiet'
+      preLoaderRoute: typeof AppQuietRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/talk': {
@@ -228,14 +304,22 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteChildren {
   AppCheckInsRoute: typeof AppCheckInsRoute
+  AppLettersRoute: typeof AppLettersRoute
   AppMemoryRoute: typeof AppMemoryRoute
+  AppPagesRoute: typeof AppPagesRoute
+  AppPatternsRoute: typeof AppPatternsRoute
+  AppQuietRoute: typeof AppQuietRoute
   AppTalkRoute: typeof AppTalkRoute
   AppYouRoute: typeof AppYouRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppCheckInsRoute: AppCheckInsRoute,
+  AppLettersRoute: AppLettersRoute,
   AppMemoryRoute: AppMemoryRoute,
+  AppPagesRoute: AppPagesRoute,
+  AppPatternsRoute: AppPatternsRoute,
+  AppQuietRoute: AppQuietRoute,
   AppTalkRoute: AppTalkRoute,
   AppYouRoute: AppYouRoute,
 }

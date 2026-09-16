@@ -159,9 +159,26 @@ body::before {
   animation-delay: 360ms;
 }
 
+.breathe-orb {
+  animation: breathe 8s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    transform: scale(0.88);
+    opacity: 0.55;
+  }
+  50% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .rise-in,
-  .listening-dash {
+  .listening-dash,
+  .breathe-orb {
     animation: none !important;
     opacity: 1;
     transform: none;

@@ -59,6 +59,14 @@ export interface PulseEntry {
   conversationId: string;
 }
 
+export interface Letter {
+  id: string;
+  to: string;
+  body: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface StillState {
   hydrated: boolean;
   onboarded: boolean;
@@ -67,6 +75,7 @@ export interface StillState {
   conversations: Conversation[];
   activeConversationId: string | null;
   memories: MemoryItem[];
+  letters: Letter[];
   checkIns: {
     enabled: boolean;
     frequency: CheckInFrequency;

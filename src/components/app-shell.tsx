@@ -1,18 +1,27 @@
 import type { ReactNode } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { BookOpen, HandHeart, MessageCircle, UserRound } from "lucide-react";
+import { BookOpen, Layers, Moon, MessageCircle, Notebook, PenLine, UserRound } from "lucide-react";
 import { StillWordmark } from "./still-mark";
 import { cn } from "@/lib/utils";
 
-const NAV = [
+const MOBILE_NAV = [
   { to: "/talk", label: "Talk", icon: MessageCircle },
   { to: "/memory", label: "Memory", icon: BookOpen },
-  { to: "/check-ins", label: "Check-ins", icon: HandHeart },
+  { to: "/quiet", label: "Quiet", icon: Moon },
+  { to: "/you", label: "You", icon: UserRound },
+] as const;
+
+const DESKTOP_NAV = [
+  { to: "/talk", label: "Talk", icon: MessageCircle },
+  { to: "/pages", label: "Pages", icon: Notebook },
+  { to: "/memory", label: "Memory", icon: BookOpen },
+  { to: "/quiet", label: "Quiet", icon: Moon },
+  { to: "/letters", label: "Letters", icon: PenLine },
+  { to: "/patterns", label: "Patterns", icon: Layers },
   { to: "/you", label: "You", icon: UserRound },
 ] as const;
 
 export function AppShell({ children }: { children: ReactNode }) {
-
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   return (
@@ -23,7 +32,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <StillWordmark />
           </Link>
           <nav className="flex flex-1 flex-col gap-1">
-            {NAV.map((item) => {
+            {DESKTOP_NAV.map((item) => {
               const active = pathname === item.to;
               const Icon = item.icon;
               return (
@@ -62,8 +71,11 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-bg/92 md:hidden">
         <div className="mx-auto grid max-w-lg grid-cols-4 px-2 pb-[max(0.35rem,env(safe-area-inset-bottom))] pt-1">
-          {NAV.map((item) => {
-            const active = pathname === item.to;
+          {MOBILE_NAV.map((item) => {
+            const active =
+              pathname === item.to ||
+              (item.to === "/you" &&
+                (pathname === "/letters" || pathname === "/pages" || pathname === "/patterns" || pathname === "/check-ins"));
             const Icon = item.icon;
             return (
               <Link
