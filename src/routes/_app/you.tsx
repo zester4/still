@@ -43,9 +43,9 @@ function YouPage() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 py-8">
+    <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 py-6 sm:py-8">
       <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted">You</p>
-      <h1 className="font-display mt-1 text-3xl font-medium tracking-tight">This space is yours.</h1>
+      <h1 className="font-display mt-1 text-2xl font-medium tracking-tight sm:text-3xl">This space is yours.</h1>
       <p className="mt-2 text-sm leading-relaxed text-muted">
         Here since {format(new Date(createdAt), "MMMM d, yyyy")}. {conversations.length}{" "}
         {conversations.length === 1 ? "page" : "pages"} of talk. {memories.length} remembered.
@@ -70,6 +70,7 @@ function YouPage() {
           />
           <Button
             variant="quiet"
+            size="sm"
             onClick={() => setName(draftName)}
             disabled={draftName.trim() === name}
           >
@@ -204,10 +205,10 @@ function Place({ to, title, body }: { to: "/pages" | "/quiet" | "/letters" | "/p
   return (
     <Link
       to={to}
-      className="rounded-xl bg-surface px-4 py-4 shadow-[var(--shadow-border)] transition-[box-shadow] duration-150 hover:shadow-[var(--shadow-border-hover)]"
+      className="rounded-xl bg-surface px-3.5 py-3 shadow-[var(--shadow-border)] transition-[box-shadow] duration-150 hover:shadow-[var(--shadow-border-hover)] sm:px-4 sm:py-4"
     >
       <p className="text-sm font-medium text-fg">{title}</p>
-      <p className="mt-1 text-sm leading-relaxed text-muted">{body}</p>
+      <p className="mt-0.5 text-xs leading-relaxed text-muted sm:mt-1 sm:text-sm">{body}</p>
     </Link>
   );
 }

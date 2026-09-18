@@ -17,7 +17,7 @@ export function Thread({
   }, [messages, listening, messages[messages.length - 1]?.content]);
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col gap-7 px-4 py-8">
+    <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-6 sm:gap-7 sm:py-8">
       {messages.map((m) => (
         <MessageBubble key={m.id} message={m} />
       ))}

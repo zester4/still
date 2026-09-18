@@ -20,9 +20,9 @@ function QuietPage() {
   const [practice, setPractice] = useState<Practice>(null);
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 py-8">
+    <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 py-6 sm:py-8">
       <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted">Quiet</p>
-      <h1 className="font-display mt-1 text-3xl font-medium tracking-tight">A room, not a program.</h1>
+      <h1 className="font-display mt-1 text-2xl font-medium tracking-tight sm:text-3xl">A room, not a program.</h1>
       <p className="mt-2 max-w-md text-sm leading-relaxed text-muted">
         Optional. Not treatment. Some people like a few minutes of sitting, or naming what's in the room,
         before they talk.
@@ -73,7 +73,7 @@ function Choice({ title, body, onClick }: { title: string; body: string; onClick
     <button
       type="button"
       onClick={onClick}
-      className="rounded-xl bg-surface px-4 py-4 text-left shadow-[var(--shadow-border)] transition-[box-shadow] duration-150 hover:shadow-[var(--shadow-border-hover)]"
+      className="rounded-xl bg-surface px-3.5 py-3.5 text-left shadow-[var(--shadow-border)] transition-[box-shadow] duration-150 hover:shadow-[var(--shadow-border-hover)] sm:px-4 sm:py-4"
     >
       <p className="text-sm font-medium text-fg">{title}</p>
       <p className="mt-1 text-sm leading-relaxed text-muted">{body}</p>

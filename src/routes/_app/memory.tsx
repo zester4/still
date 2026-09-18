@@ -82,11 +82,11 @@ function MemoryPage() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 py-8">
+    <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 py-6 sm:py-8">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted">Memory</p>
-          <h1 className="font-display mt-1 text-3xl font-medium tracking-tight">What Still keeps</h1>
+          <h1 className="font-display mt-1 text-2xl font-medium tracking-tight sm:text-3xl">What Still keeps</h1>
           <p className="mt-2 max-w-md text-sm leading-relaxed text-muted">
             Only what you allow. Edit or delete anything. This lives on this device until a backend is added.
           </p>

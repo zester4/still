@@ -61,7 +61,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </aside>
 
         <div className="flex min-h-dvh min-w-0 flex-1 flex-col pb-[4.5rem] md:pb-0">
-          <header className="flex items-center justify-between border-b border-line px-4 py-3 md:hidden">
+          <header className="flex items-center justify-between border-b border-line px-4 py-2.5 md:hidden">
             <StillWordmark size="sm" />
             <span className="text-xs text-subtle">Not therapy</span>
           </header>

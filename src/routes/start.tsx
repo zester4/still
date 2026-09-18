@@ -53,7 +53,7 @@ function Onboarding() {
             <Link to="/" className="inline-flex">
               <StillMark className="rise-in size-11" />
             </Link>
-            <h1 className="font-display rise-in stagger-1 mt-8 text-5xl font-medium tracking-tight text-fg sm:text-6xl">
+            <h1 className="font-display rise-in stagger-1 mt-8 text-4xl font-medium tracking-tight text-fg sm:text-6xl">
               Still.
             </h1>
             <p className="rise-in stagger-2 mt-5 max-w-sm text-lg leading-relaxed text-muted">

@@ -60,10 +60,10 @@ function LettersPage() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 py-8">
+    <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 py-6 sm:py-8">
       <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted">Letters</p>
       <div className="mt-1 flex items-end justify-between gap-3">
-        <h1 className="font-display text-3xl font-medium tracking-tight">You don't have to send it.</h1>
+        <h1 className="font-display text-2xl font-medium tracking-tight sm:text-3xl">You don't have to send it.</h1>
         <Button size="sm" variant="quiet" onClick={startNew}>
           Write
         </Button>
@@ -119,9 +119,9 @@ function LetterEditor({
   const heavy = useMemo(() => detectCrisis(`${letter.to} ${letter.body}`), [letter.to, letter.body]);
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 py-8">
+    <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 py-6 sm:py-8">
       <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted">A letter</p>
-      <h1 className="font-display mt-1 text-3xl font-medium tracking-tight">Write, and leave it here.</h1>
+      <h1 className="font-display mt-1 text-2xl font-medium tracking-tight sm:text-3xl">Write, and leave it here.</h1>
 
       <div className="mt-8 space-y-4">
         <div>

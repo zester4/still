@@ -18,12 +18,12 @@ function AboutPage() {
 
   return (
     <SiteChrome current="about">
-      <article className="mx-auto max-w-5xl px-5 py-12 sm:py-16">
+      <article className="mx-auto max-w-5xl px-5 py-8 sm:py-16">
         <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted">About</p>
-        <h1 className="font-display mt-3 max-w-2xl text-4xl font-medium tracking-tight sm:text-5xl">
+        <h1 className="font-display mt-3 max-w-2xl text-3xl font-medium leading-tight tracking-tight sm:text-5xl">
           Still is an AI companion. It will not pretend to be more.
         </h1>
-        <p className="mt-5 max-w-xl text-base leading-relaxed text-muted sm:text-lg">
+        <p className="mt-4 max-w-xl text-sm leading-relaxed text-muted sm:mt-5 sm:text-lg">
           Built for adults sitting with depression, low mood, loneliness, or overwhelm who want a
           place to talk that is not an intake form, and not a friend they are afraid of burdening.
         </p>

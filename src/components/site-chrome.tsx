@@ -18,7 +18,7 @@ export function SiteChrome({
   return (
     <div className="still-vignette min-h-dvh">
       <header className="sticky top-0 z-30 border-b border-line bg-bg/90">
-        <div className="mx-auto flex h-14 max-w-5xl items-center justify-between gap-4 px-5">
+        <div className="mx-auto flex h-12 max-w-5xl items-center justify-between gap-3 px-4 sm:h-14 sm:gap-4 sm:px-5">
           <Link to="/" aria-label="Still home">
             <StillWordmark size="sm" />
           </Link>
@@ -26,7 +26,7 @@ export function SiteChrome({
             <Link
               to="/"
               className={cn(
-                "hidden h-11 items-center px-3 text-sm sm:inline-flex",
+                "hidden h-10 items-center px-2.5 text-sm sm:inline-flex sm:h-11 sm:px-3",
                 current === "home" ? "text-fg" : "text-muted hover:text-fg",
               )}
             >
@@ -35,7 +35,7 @@ export function SiteChrome({
             <Link
               to="/about"
               className={cn(
-                "inline-flex h-11 items-center px-3 text-sm",
+                "inline-flex h-10 items-center px-2.5 text-sm sm:h-11 sm:px-3",
                 current === "about" ? "text-fg" : "text-muted hover:text-fg",
               )}
             >

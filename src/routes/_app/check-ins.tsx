@@ -19,9 +19,9 @@ function CheckInsPage() {
   const setCheckIns = useStillStore((s) => s.setCheckIns);
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 py-8">
+    <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 py-6 sm:py-8">
       <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted">Check-ins</p>
-      <h1 className="font-display mt-1 text-3xl font-medium tracking-tight">A knock, not a demand.</h1>
+      <h1 className="font-display mt-1 text-2xl font-medium tracking-tight sm:text-3xl">A knock, not a demand.</h1>
       <p className="mt-2 max-w-md text-sm leading-relaxed text-muted">
         Opt-in only. If you skip one, nothing piles up. Still will not guilt you for being quiet.
       </p>

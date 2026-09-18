@@ -162,7 +162,7 @@ function TalkPage() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="flex items-center justify-between gap-3 border-b border-line px-4 py-3">
+      <div className="flex items-center justify-between gap-2 border-b border-line px-3 py-2 sm:gap-3 sm:px-4 sm:py-3">
         <div className="min-w-0">
           <p className="text-sm text-fg">Here with you</p>
           {continuity ? (
@@ -216,7 +216,7 @@ function TalkPage() {
       <div className="min-h-0 flex-1 overflow-y-auto">
         {empty && !listening ? (
           <div className="mx-auto flex max-w-lg flex-col items-start px-6 py-16">
-            <p className="font-display text-3xl font-medium tracking-tight text-fg">
+            <p className="font-display text-2xl font-medium tracking-tight text-fg sm:text-3xl">
               Whenever you're ready.
             </p>
             <p className="mt-3 text-sm leading-relaxed text-muted">

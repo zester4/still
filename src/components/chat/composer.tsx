@@ -41,7 +41,7 @@ export function Composer({
   return (
     <form
       onSubmit={submit}
-      className="mx-auto w-full max-w-2xl px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2"
+      className="mx-auto w-full max-w-2xl px-3 pb-2 pt-1.5 sm:px-4 sm:pb-3 sm:pt-2"
     >
       <div
         className={cn(

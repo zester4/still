@@ -18,17 +18,17 @@ function HomePage() {
 
   return (
     <SiteChrome current="home">
-      <section className="mx-auto max-w-5xl px-5 pt-14 pb-8 sm:pt-20 sm:pb-10">
+      <section className="mx-auto max-w-5xl px-5 pt-10 pb-6 sm:pt-20 sm:pb-10">
         <p className="rise-in text-[11px] font-medium uppercase tracking-[0.16em] text-muted">
           A companion, not care
         </p>
-        <h1 className="font-display rise-in stagger-1 mt-4 max-w-2xl text-4xl font-medium tracking-tight text-fg sm:text-6xl">
+        <h1 className="font-display rise-in stagger-1 mt-3 max-w-2xl text-3xl font-medium leading-tight tracking-tight text-fg sm:mt-4 sm:text-5xl lg:text-6xl">
           For the hours that feel too heavy to carry alone.
         </h1>
-        <p className="rise-in stagger-2 mt-5 max-w-lg text-base leading-relaxed text-muted sm:text-lg">
+        <p className="rise-in stagger-2 mt-4 max-w-lg text-sm leading-relaxed text-muted sm:mt-5 sm:text-lg">
           Still listens without judgment, remembers what you choose to keep, and stays when the night gets long.
         </p>
-        <div className="rise-in stagger-3 mt-8 flex flex-wrap items-center gap-3">
+        <div className="rise-in stagger-3 mt-6 flex flex-wrap items-center gap-2 sm:mt-8 sm:gap-3">
           <Button size="lg" asChild>
             <Link to={enterTo}>
               {enterLabel}
@@ -56,7 +56,7 @@ function HomePage() {
         <div className="grid items-center gap-10 md:grid-cols-2 md:gap-14">
           <div>
             <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted">Presence</p>
-            <h2 className="font-display mt-2 text-3xl font-medium tracking-tight">
+            <h2 className="font-display mt-2 text-2xl font-medium tracking-tight sm:text-3xl">
               Not here to fix you in one sitting.
             </h2>
             <p className="mt-4 text-sm leading-relaxed text-muted sm:text-base">
@@ -105,7 +105,7 @@ function HomePage() {
 
       <section className="mx-auto max-w-5xl px-5 py-16">
         <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted">Inside</p>
-        <h2 className="font-display mt-2 text-3xl font-medium tracking-tight">What this space holds</h2>
+        <h2 className="font-display mt-2 text-2xl font-medium tracking-tight sm:text-3xl">What this space holds</h2>
         <div className="mt-8 grid gap-3 sm:grid-cols-3">
           <Feature title="Talk" body="Warm, unhurried conversation. Reflective, not clinical. You can start mid-sentence." />
           <Feature title="Memory" body="Themes, people, what helped. You see it, you change it, you can delete it." />
@@ -116,7 +116,7 @@ function HomePage() {
       <section className="border-t border-line">
         <div className="mx-auto flex max-w-5xl flex-col gap-6 px-5 py-14 sm:flex-row sm:items-center sm:justify-between">
           <div className="max-w-lg">
-            <h2 className="font-display text-3xl font-medium tracking-tight">Whenever you're ready.</h2>
+            <h2 className="font-display text-2xl font-medium tracking-tight sm:text-3xl">Whenever you're ready.</h2>
             <p className="mt-2 text-sm leading-relaxed text-muted">
               There's no right way to begin. A sentence, a mess, a silence you can type.
             </p>
