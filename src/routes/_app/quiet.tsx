@@ -1,10 +1,10 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+"use client";
+
+import { Link } from "@/lib/nav";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { CrisisCard } from "@/components/crisis-card";
 import { StillPhoto } from "@/components/site-chrome";
-
-export const Route = createFileRoute("/_app/quiet")({ component: QuietPage });
 
 type Practice = "sit" | "senses" | "night" | null;
 
@@ -16,7 +16,7 @@ const SENSE_STEPS = [
   { n: 1, prompt: "One slow breath. That's enough." },
 ];
 
-function QuietPage() {
+export function QuietPage() {
   const [practice, setPractice] = useState<Practice>(null);
 
   return (

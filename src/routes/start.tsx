@@ -1,5 +1,7 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+"use client";
+
+import { Link, useNavigate } from "@/lib/nav";
+import { useEffect, useState } from "react";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,17 +13,17 @@ import { CONCERN_OPTIONS, type CheckInFrequency } from "@/lib/companion/types";
 import { useStillStore } from "@/lib/store/still-store";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/start")({ component: StartPage });
-
-function StartPage() {
+export function StartPage() {
   const hydrated = useStillStore((s) => s.hydrated);
   const onboarded = useStillStore((s) => s.onboarded);
   const navigate = useNavigate();
 
-  if (hydrated && onboarded) {
-    void navigate({ to: "/talk" });
-    return <Splash />;
-  }
+  useEffect(() => {
+    if (hydrated && onboarded) navigate({ to: "/talk" });
+  }, [hydrated, onboarded, navigate]);
+
+  if (!hydrated) return <Splash />;
+  if (onboarded) return <Splash />;
 
   return <Onboarding />;
 }

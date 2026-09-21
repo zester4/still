@@ -1,18 +1,13 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+"use client";
+
+import { Link } from "@/lib/nav";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CrisisCard } from "@/components/crisis-card";
 import { SiteChrome, StillPhoto } from "@/components/site-chrome";
 import { useStillStore } from "@/lib/store/still-store";
 
-export const Route = createFileRoute("/about")({
-  component: AboutPage,
-  head: () => ({
-    meta: [{ title: "About · Still" }],
-  }),
-});
-
-function AboutPage() {
+export function AboutPage() {
   const onboarded = useStillStore((s) => s.onboarded);
   const enterTo = onboarded ? "/talk" : "/start";
 

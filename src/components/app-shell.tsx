@@ -1,5 +1,7 @@
+"use client";
+
 import type { ReactNode } from "react";
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useRouterState } from "@/lib/nav";
 import { BookOpen, Layers, Moon, MessageCircle, Notebook, PenLine, UserRound } from "lucide-react";
 import { StillWordmark } from "./still-mark";
 import { cn } from "@/lib/utils";

@@ -1,5 +1,7 @@
+"use client";
+
 import type { ReactNode } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link } from "@/lib/nav";
 import { StillWordmark } from "@/components/still-mark";
 import { Button } from "@/components/ui/button";
 import { useStillStore } from "@/lib/store/still-store";

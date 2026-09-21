@@ -1,4 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
+"use client";
+
 import { useMemo, useState } from "react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -11,9 +12,7 @@ import type { Letter } from "@/lib/companion/types";
 import { useStillStore } from "@/lib/store/still-store";
 import { nowIso, uid } from "@/lib/utils";
 
-export const Route = createFileRoute("/_app/letters")({ component: LettersPage });
-
-function LettersPage() {
+export function LettersPage() {
   const letters = useStillStore((s) => s.letters ?? []);
   const upsertLetter = useStillStore((s) => s.upsertLetter);
   const deleteLetter = useStillStore((s) => s.deleteLetter);

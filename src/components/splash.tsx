@@ -1,3 +1,5 @@
+"use client";
+
 import { StillMark } from "./still-mark";
 
 export function Splash() {

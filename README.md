@@ -23,7 +23,7 @@ Data lives on this device (`localStorage`) until a backend is added.
 
 ## Stack
 
-TanStack Start, React 19, Vite, Tailwind v4.
+Next.js (App Router), React 19, Tailwind v4.
 
 ## Run
 

@@ -1,36 +1,41 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "lib": [
-      "ES2022",
-      "DOM",
-      "DOM.Iterable"
-    ],
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "jsx": "react-jsx",
+    "jsx": "preserve",
     "strict": true,
     "isolatedModules": true,
     "skipLibCheck": true,
-    // `src/lib/db.ts` imports scripts/migration-plan.mjs; checkJs types the
-    // implementation itself instead of a hand-written declaration beside it.
     "allowJs": true,
-    "checkJs": true,
     "noEmit": true,
-    "types": [
-      "vite/client",
-      "node"
-    ],
+    "incremental": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "plugins": [{ "name": "next" }],
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "./src/*"
-      ]
-    },
-    "allowImportingTsExtensions": true
+      "@/*": ["./src/*"]
+    }
   },
   "include": [
-    "src",
-    "server"
-  ]
+    "next-env.d.ts",
+    "app",
+    "src/components",
+    "src/lib/companion",
+    "src/lib/nav.tsx",
+    "src/lib/store",
+    "src/lib/utils.ts",
+    "src/lib/preview-host-bridge.ts",
+    "src/lib/preview-embedder-origin.ts",
+    "src/lib/app-data/types.ts",
+    "src/lib/og",
+    "src/routes/index.tsx",
+    "src/routes/about.tsx",
+    "src/routes/start.tsx",
+    "src/routes/_app",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": ["node_modules"]
 }

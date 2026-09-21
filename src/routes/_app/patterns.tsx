@@ -1,11 +1,11 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+"use client";
+
+import { Link } from "@/lib/nav";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { INTENT_LABEL, MOOD_LABEL, type Intent, type Mood } from "@/lib/companion/types";
 import { intentPattern, useStillStore } from "@/lib/store/still-store";
 import { cn } from "@/lib/utils";
-
-export const Route = createFileRoute("/_app/patterns")({ component: PatternsPage });
 
 const MOOD_DOT: Record<Mood, string> = {
   heavy: "bg-muted",
@@ -14,7 +14,7 @@ const MOOD_DOT: Record<Mood, string> = {
   unsure: "bg-subtle",
 };
 
-function PatternsPage() {
+export function PatternsPage() {
   const checkIns = useStillStore((s) => s.checkIns);
   const pulses = useStillStore((s) => s.pulses);
   const memories = useStillStore((s) => s.memories);

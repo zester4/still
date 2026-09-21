@@ -1,4 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
+"use client";
+
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -6,15 +7,13 @@ import { MOOD_LABEL, type CheckInFrequency } from "@/lib/companion/types";
 import { useStillStore } from "@/lib/store/still-store";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/_app/check-ins")({ component: CheckInsPage });
-
 const FREQ: { id: CheckInFrequency; label: string; hint: string }[] = [
   { id: "daily", label: "Daily", hint: "A quiet hello most days you open this." },
   { id: "few", label: "Every few days", hint: "Unhurried. The default." },
   { id: "weekly", label: "Weekly", hint: "Once in a while is enough." },
 ];
 
-function CheckInsPage() {
+export function CheckInsPage() {
   const checkIns = useStillStore((s) => s.checkIns);
   const setCheckIns = useStillStore((s) => s.setCheckIns);
 

@@ -1,4 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+"use client";
+
+import { Link } from "@/lib/nav";
 import { useMemo, useState } from "react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -16,9 +18,7 @@ import { INTENT_LABEL, type Intent } from "@/lib/companion/types";
 import { intentPattern, useStillStore } from "@/lib/store/still-store";
 import { Separator } from "@/components/ui/separator";
 
-export const Route = createFileRoute("/_app/you")({ component: YouPage });
-
-function YouPage() {
+export function YouPage() {
   const name = useStillStore((s) => s.name);
   const setName = useStillStore((s) => s.setName);
   const pulses = useStillStore((s) => s.pulses);

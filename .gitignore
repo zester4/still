@@ -13,7 +13,8 @@ jspm_packages/
 .output/
 dist/
 .vite/
-.tanstack/
+.next/
+
 *.tsbuildinfo
 
 # Logs

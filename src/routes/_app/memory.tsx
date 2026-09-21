@@ -1,4 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
+"use client";
+
 import { useMemo, useState, type ReactNode } from "react";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -18,11 +19,9 @@ import { nowIso, uid } from "@/lib/utils";
 import { requestMemoryExtract } from "@/lib/companion/send";
 import { formatDistanceToNow } from "date-fns";
 
-export const Route = createFileRoute("/_app/memory")({ component: MemoryPage });
-
 const KINDS: MemoryKind[] = ["theme", "person", "situation", "coping", "goal"];
 
-function MemoryPage() {
+export function MemoryPage() {
   const memories = useStillStore((s) => s.memories);
   const conversations = useStillStore((s) => s.conversations);
   const addMemories = useStillStore((s) => s.addMemories);

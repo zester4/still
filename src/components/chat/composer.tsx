@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useRef, type FormEvent, type KeyboardEvent } from "react";
 import { ArrowUp } from "lucide-react";
 import { Button } from "@/components/ui/button";

@@ -1,3 +1,5 @@
+"use client";
+
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { uid, nowIso } from "@/lib/utils";
@@ -318,6 +320,7 @@ export const useStillStore = create<StillState & StillActions>()(
     }),
     {
       name: "still-companion",
+      skipHydration: true,
       partialize: (s) => {
         const { hydrated: _h, ...rest } = s;
         void _h;

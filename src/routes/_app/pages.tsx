@@ -1,10 +1,10 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+"use client";
+
+import { useNavigate } from "@/lib/nav";
 import { formatDistanceToNow } from "date-fns";
 import { Button } from "@/components/ui/button";
 import type { Conversation } from "@/lib/companion/types";
 import { useStillStore } from "@/lib/store/still-store";
-
-export const Route = createFileRoute("/_app/pages")({ component: PagesPage });
 
 function preview(c: Conversation) {
   const first = c.messages.find((m) => m.role === "user")?.content.trim();
@@ -12,7 +12,7 @@ function preview(c: Conversation) {
   return first.replace(/\s+/g, " ").slice(0, 140);
 }
 
-function PagesPage() {
+export function PagesPage() {
   const conversations = useStillStore((s) => s.conversations);
   const activeId = useStillStore((s) => s.activeConversationId);
   const openConversation = useStillStore((s) => s.openConversation);

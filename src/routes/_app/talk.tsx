@@ -1,4 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+"use client";
+
+import { Link } from "@/lib/nav";
 import { useMemo, useRef, useState } from "react";
 import { Thread } from "@/components/chat/thread";
 import { Composer } from "@/components/chat/composer";
@@ -14,9 +16,7 @@ import {
   userMessageCount,
 } from "@/lib/store/still-store";
 
-export const Route = createFileRoute("/_app/talk")({ component: TalkPage });
-
-function TalkPage() {
+export function TalkPage() {
   const conversations = useStillStore((s) => s.conversations);
   const activeId = useStillStore((s) => s.activeConversationId);
   const memories = useStillStore((s) => s.memories);

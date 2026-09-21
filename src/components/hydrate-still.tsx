@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect } from "react";
 import { useStillStore } from "@/lib/store/still-store";
 
@@ -6,6 +8,7 @@ export function HydrateStill() {
     const mark = () => useStillStore.getState().setHydrated();
     const unsub = useStillStore.persist.onFinishHydration(mark);
     if (useStillStore.persist.hasHydrated()) mark();
+    else void useStillStore.persist.rehydrate();
     const fallback = window.setTimeout(mark, 800);
     return () => {
       unsub();
