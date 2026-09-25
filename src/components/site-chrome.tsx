@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { useSession } from "next-auth/react";
 import { Link } from "@/lib/nav";
 import { StillWordmark } from "@/components/still-mark";
 import { Button } from "@/components/ui/button";
@@ -14,8 +15,11 @@ export function SiteChrome({
   children: ReactNode;
   current: "home" | "about";
 }) {
+  const { status } = useSession();
   const onboarded = useStillStore((s) => s.onboarded);
-  const enterTo = onboarded ? "/talk" : "/start";
+  const signedIn = status === "authenticated";
+  const enterTo = signedIn ? (onboarded ? "/talk" : "/start") : "/signup";
+  const enterLabel = signedIn ? (onboarded ? "Continue" : "Enter") : "Enter";
 
   return (
     <div className="still-vignette min-h-dvh">
@@ -44,7 +48,7 @@ export function SiteChrome({
               About
             </Link>
             <Button size="sm" asChild className="ml-1">
-              <Link to={enterTo}>{onboarded ? "Continue" : "Enter"}</Link>
+              <Link to={enterTo}>{enterLabel}</Link>
             </Button>
           </nav>
         </div>

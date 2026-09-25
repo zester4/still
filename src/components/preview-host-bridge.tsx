@@ -12,7 +12,8 @@ import { installPreviewHostBridge } from "@/lib/preview-host-bridge";
 const ROUTES = [
   "/",
   "/about",
-  "/start",
+  "/login",
+  "/signup",
   "/talk",
   "/pages",
   "/memory",

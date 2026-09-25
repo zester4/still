@@ -19,16 +19,18 @@ In some places, including Illinois, using AI as therapy is restricted. This app 
 - **You** — disclosure, data export/erase, human resources
 - **Safety** — crisis language takes a hard-coded path (presence + real helplines), not a free-generated reply
 
-Data lives on this device (`localStorage`) until a backend is added.
+Data is stored per account (Neon + Drizzle). A copy can also live on this device.
 
 ## Stack
 
-Next.js (App Router), React 19, Tailwind v4.
+Next.js (App Router), NextAuth, Drizzle ORM, Neon (PGLite in preview), React 19, Tailwind v4.
 
 ## Run
 
 ```bash
 npm install
+npm run db:generate   # emit SQL from src/db/schema.ts
+npm run db:migrate    # apply SQL
 npm run dev
 ```
 

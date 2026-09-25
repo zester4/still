@@ -2,14 +2,16 @@
 
 import { Link } from "@/lib/nav";
 import { ArrowRight } from "lucide-react";
+import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { CrisisCard } from "@/components/crisis-card";
 import { SiteChrome, StillPhoto } from "@/components/site-chrome";
 import { useStillStore } from "@/lib/store/still-store";
 
 export function AboutPage() {
+  const { status } = useSession();
   const onboarded = useStillStore((s) => s.onboarded);
-  const enterTo = onboarded ? "/talk" : "/start";
+  const enterTo = status === "authenticated" ? (onboarded ? "/talk" : "/start") : "/signup";
 
   return (
     <SiteChrome current="about">

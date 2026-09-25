@@ -6,6 +6,7 @@ const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
     return (
       <input
         type={type}
+        suppressHydrationWarning
         className={cn(
           "flex h-11 w-full rounded-md bg-surface-2 px-3.5 text-sm text-fg shadow-[var(--shadow-border)]",
           "placeholder:text-subtle",

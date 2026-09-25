@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { PreviewHostBridge } from "@/components/preview-host-bridge";
 import { HydrateStill } from "@/components/hydrate-still";
+import { Providers } from "@/components/providers";
 import { Toaster } from "sonner";
 import "@/styles.css";
 
@@ -29,10 +30,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body>
-        <PreviewHostBridge />
-        <HydrateStill />
-        {children}
-        <Toaster theme="dark" position="bottom-center" />
+        <Providers>
+          <PreviewHostBridge />
+          <HydrateStill />
+          {children}
+          <Toaster theme="dark" position="bottom-center" />
+        </Providers>
       </body>
     </html>
   );

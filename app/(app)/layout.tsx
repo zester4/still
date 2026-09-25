@@ -1,22 +1,9 @@
-"use client";
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
+import { AppGroupLayout } from "@/components/app-group-layout";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { AppShell } from "@/components/app-shell";
-import { Splash } from "@/components/splash";
-import { useStillStore } from "@/lib/store/still-store";
-
-export default function AppGroupLayout({ children }: { children: React.ReactNode }) {
-  const hydrated = useStillStore((s) => s.hydrated);
-  const onboarded = useStillStore((s) => s.onboarded);
-  const router = useRouter();
-
-  useEffect(() => {
-    if (hydrated && !onboarded) router.replace("/start");
-  }, [hydrated, onboarded, router]);
-
-  if (!hydrated) return <Splash />;
-  if (!onboarded) return <Splash />;
-
-  return <AppShell>{children}</AppShell>;
+export default async function AppLayout({ children }: { children: React.ReactNode }) {
+  const session = await auth();
+  if (!session?.user?.id) redirect("/login");
+  return <AppGroupLayout>{children}</AppGroupLayout>;
 }

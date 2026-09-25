@@ -2,14 +2,17 @@
 
 import { Link } from "@/lib/nav";
 import { ArrowRight } from "lucide-react";
+import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { SiteChrome, StillPhoto } from "@/components/site-chrome";
 import { useStillStore } from "@/lib/store/still-store";
 
 export function HomePage() {
+  const { status } = useSession();
   const onboarded = useStillStore((s) => s.onboarded);
-  const enterTo = onboarded ? "/talk" : "/start";
-  const enterLabel = onboarded ? "Continue" : "Enter this space";
+  const signedIn = status === "authenticated";
+  const enterTo = signedIn ? (onboarded ? "/talk" : "/start") : "/signup";
+  const enterLabel = signedIn ? (onboarded ? "Continue" : "Enter this space") : "Enter this space";
 
   return (
     <SiteChrome current="home">
@@ -33,6 +36,11 @@ export function HomePage() {
           <Button size="lg" variant="quiet" asChild>
             <Link to="/about">About Still</Link>
           </Button>
+          {signedIn ? null : (
+            <Button size="lg" variant="ghost" asChild>
+              <Link to="/login">Sign in</Link>
+            </Button>
+          )}
         </div>
       </section>
 

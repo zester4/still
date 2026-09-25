@@ -49,6 +49,7 @@ type StillActions = {
   addPulse: (conversationId: string, value: PulseValue) => void;
   exportData: () => string;
   wipeAll: () => void;
+  replaceFromCloud: (snap: Omit<StillState, "hydrated">) => void;
 };
 
 const emptyState = (): Omit<StillState, "hydrated"> => ({
@@ -316,6 +317,15 @@ export const useStillStore = create<StillState & StillActions>()(
 
       wipeAll: () => {
         set({ ...emptyState(), hydrated: true, createdAt: nowIso() });
+      },
+
+      replaceFromCloud: (snap) => {
+        set({
+          ...emptyState(),
+          ...snap,
+          letters: snap.letters ?? [],
+          hydrated: true,
+        });
       },
     }),
     {

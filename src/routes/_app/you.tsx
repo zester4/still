@@ -2,6 +2,7 @@
 
 import { Link } from "@/lib/nav";
 import { useMemo, useState } from "react";
+import { signOut, useSession } from "next-auth/react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,6 +20,7 @@ import { intentPattern, useStillStore } from "@/lib/store/still-store";
 import { Separator } from "@/components/ui/separator";
 
 export function YouPage() {
+  const { data: session } = useSession();
   const name = useStillStore((s) => s.name);
   const setName = useStillStore((s) => s.setName);
   const pulses = useStillStore((s) => s.pulses);
@@ -58,6 +60,22 @@ export function YouPage() {
         <Place to="/patterns" title="Patterns" body="How the weeks have felt. Not a score." />
         <Place to="/memory" title="Memory" body="What you asked Still to keep." />
         <Place to="/check-ins" title="Check-ins" body="A knock, if you want one." />
+      </section>
+
+      <section className="mt-4 rounded-xl bg-surface p-5 shadow-[var(--shadow-border)]">
+        <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted">Account</p>
+        <p className="mt-2 text-sm text-fg">{session?.user?.email}</p>
+        <div className="mt-3">
+          <Button
+            variant="quiet"
+            size="sm"
+            onClick={() => {
+              void signOut({ callbackUrl: "/" });
+            }}
+          >
+            Sign out
+          </Button>
+        </div>
       </section>
 
       <section className="mt-4 rounded-xl bg-surface p-5 shadow-[var(--shadow-border)]">
@@ -154,7 +172,7 @@ export function YouPage() {
       <section>
         <h2 className="font-display text-2xl font-medium tracking-tight">Your data</h2>
         <p className="mt-2 text-sm leading-relaxed text-muted">
-          Conversations, memory, check-ins, and pulse answers stay on this device. Export a copy, or erase it.
+        Conversations, memory, check-ins, and pulse answers are kept with your account, and a copy stays on this device. Export, or erase.
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
           <Button variant="quiet" onClick={download}>
@@ -188,6 +206,7 @@ export function YouPage() {
               variant="crisis"
               onClick={() => {
                 wipeAll();
+                void fetch("/api/still", { method: "DELETE" });
                 setConfirmWipe(false);
                 window.location.href = "/";
               }}
