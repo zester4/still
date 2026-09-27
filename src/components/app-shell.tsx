@@ -58,9 +58,14 @@ export function AppShell({ children }: { children: ReactNode }) {
             <br />
             Not a therapist.
           </p>
-          <Link to="/" className="mt-3 text-xs text-muted hover:text-fg">
-            Home
-          </Link>
+          <div className="mt-3 flex flex-col gap-1 text-xs text-muted">
+            <Link to="/legal" className="hover:text-fg">
+              Legal
+            </Link>
+            <Link to="/" className="hover:text-fg">
+              Home
+            </Link>
+          </div>
         </aside>
 
         <div className="flex min-h-dvh min-w-0 flex-1 flex-col pb-[4.5rem] md:pb-0">

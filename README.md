@@ -17,6 +17,7 @@ In some places, including Illinois, using AI as therapy is restricted. This app 
 - **Patterns** — how the weeks have felt, not a score
 - **Check-ins** — optional, never guilt-based
 - **You** — disclosure, data export/erase, human resources
+- **Legal** — terms, privacy, disclaimer (not therapy), and safety
 - **Safety** — crisis language takes a hard-coded path (presence + real helplines), not a free-generated reply
 
 Data is stored per account (Neon + Drizzle). A copy can also live on this device.

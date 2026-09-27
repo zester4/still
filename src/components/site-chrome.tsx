@@ -13,7 +13,7 @@ export function SiteChrome({
   current,
 }: {
   children: ReactNode;
-  current: "home" | "about";
+  current: "home" | "about" | "legal";
 }) {
   const { status } = useSession();
   const onboarded = useStillStore((s) => s.onboarded);
@@ -22,7 +22,7 @@ export function SiteChrome({
   const enterLabel = signedIn ? (onboarded ? "Continue" : "Enter") : "Enter";
 
   return (
-    <div className="still-vignette min-h-dvh">
+    <div className="still-vignette flex min-h-dvh flex-col">
       <header className="sticky top-0 z-30 border-b border-line bg-bg/90">
         <div className="mx-auto flex h-12 max-w-5xl items-center justify-between gap-3 px-4 sm:h-14 sm:gap-4 sm:px-5">
           <Link to="/" aria-label="Still home">
@@ -53,8 +53,8 @@ export function SiteChrome({
           </nav>
         </div>
       </header>
-      {children}
-      <footer className="border-t border-line">
+      <div className="flex-1">{children}</div>
+      <footer className="relative z-10 mt-auto border-t border-line bg-bg">
         <div className="mx-auto flex max-w-5xl flex-col gap-3 px-5 py-8 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <StillWordmark size="sm" />
@@ -65,6 +65,18 @@ export function SiteChrome({
           <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted">
             <Link to="/about" className="hover:text-fg">
               About
+            </Link>
+            <Link to="/terms" className="hover:text-fg">
+              Terms
+            </Link>
+            <Link to="/privacy" className="hover:text-fg">
+              Privacy
+            </Link>
+            <Link to="/disclaimer" className="hover:text-fg">
+              Disclaimer
+            </Link>
+            <Link to="/safety" className="hover:text-fg">
+              Safety
             </Link>
             <a href="https://www.iasp.info/suicidalthoughts/" className="hover:text-fg">
               Find a helpline

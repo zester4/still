@@ -88,6 +88,19 @@ export function LoginPage() {
             Make a space
           </Link>
         </p>
+        <p className="mt-4 text-xs text-subtle">
+          <Link to="/terms" className="hover:text-fg">
+            Terms
+          </Link>
+          {" · "}
+          <Link to="/privacy" className="hover:text-fg">
+            Privacy
+          </Link>
+          {" · "}
+          <Link to="/disclaimer" className="hover:text-fg">
+            Disclaimer
+          </Link>
+        </p>
       </div>
     </div>
   );

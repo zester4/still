@@ -39,6 +39,11 @@
     "src/routes/start.tsx",
     "src/routes/login.tsx",
     "src/routes/signup.tsx",
+    "src/routes/legal.tsx",
+    "src/routes/terms.tsx",
+    "src/routes/privacy.tsx",
+    "src/routes/disclaimer.tsx",
+    "src/routes/safety.tsx",
     "src/routes/_app",
     ".next/types/**/*.ts"
   ],

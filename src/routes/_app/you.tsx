@@ -152,6 +152,18 @@ export function YouPage() {
             <Link to="/about">About Still</Link>
           </Button>
           <Button variant="quiet" asChild>
+            <Link to="/terms">Terms</Link>
+          </Button>
+          <Button variant="quiet" asChild>
+            <Link to="/privacy">Privacy</Link>
+          </Button>
+          <Button variant="quiet" asChild>
+            <Link to="/disclaimer">Disclaimer</Link>
+          </Button>
+          <Button variant="quiet" asChild>
+            <Link to="/safety">Safety</Link>
+          </Button>
+          <Button variant="quiet" asChild>
             <Link to="/memory">Review memory</Link>
           </Button>
           <Button variant="quiet" asChild>

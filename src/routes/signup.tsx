@@ -104,6 +104,21 @@ export function SignupPage() {
           <Button type="submit" size="lg" disabled={pending}>
             {pending ? "A moment…" : "Create this space"}
           </Button>
+          <p className="text-xs leading-relaxed text-subtle">
+            By creating this space you agree to the{" "}
+            <Link to="/terms" className="text-muted underline-offset-4 hover:text-fg hover:underline">
+              Terms
+            </Link>
+            ,{" "}
+            <Link to="/privacy" className="text-muted underline-offset-4 hover:text-fg hover:underline">
+              Privacy
+            </Link>
+            , and{" "}
+            <Link to="/disclaimer" className="text-muted underline-offset-4 hover:text-fg hover:underline">
+              Disclaimer
+            </Link>
+            . Still is not therapy.
+          </p>
         </form>
 
         <p className="mt-8 text-sm text-muted">

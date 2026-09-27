@@ -22,6 +22,11 @@ const ROUTES = [
   "/patterns",
   "/check-ins",
   "/you",
+  "/legal",
+  "/terms",
+  "/privacy",
+  "/disclaimer",
+  "/safety",
 ];
 
 export function PreviewHostBridge() {
