@@ -15,6 +15,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { CrisisCard } from "@/components/crisis-card";
+import { BackLink } from "@/components/back-link";
 import { INTENT_LABEL, type Intent } from "@/lib/companion/types";
 import { intentPattern, useStillStore } from "@/lib/store/still-store";
 import { Separator } from "@/components/ui/separator";
@@ -46,6 +47,7 @@ export function YouPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 py-6 sm:py-8">
+      <BackLink fallback="/talk" className="mb-3" />
       <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted">You</p>
       <h1 className="font-display mt-1 text-2xl font-medium tracking-tight sm:text-3xl">This space is yours.</h1>
       <p className="mt-2 text-sm leading-relaxed text-muted">
@@ -142,8 +144,7 @@ export function YouPage() {
             designed as a companion — a place to talk — and says so plainly.
           </p>
           <p>
-            Memory lives on this device for now. A later backend can sync it; until then, you can export
-            or erase everything below.
+            Memory, talks, and letters are kept with your account. Export a copy, or erase it.
           </p>
         </div>
         <div className="mt-4 flex flex-wrap gap-2">
@@ -194,7 +195,7 @@ export function YouPage() {
           <DialogHeader>
             <DialogTitle>Erase everything?</DialogTitle>
             <DialogDescription>
-              Talks, memory, check-ins, and answers will be removed from this device. This cannot be undone
+              Talks, memory, check-ins, and answers will be removed from this account and this device. This cannot be undone
               unless you already exported.
             </DialogDescription>
           </DialogHeader>

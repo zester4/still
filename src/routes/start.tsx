@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { StillMark } from "@/components/still-mark";
+import { BackLink } from "@/components/back-link";
 import { Splash } from "@/components/splash";
 import { CONCERN_OPTIONS, type CheckInFrequency } from "@/lib/companion/types";
 import { useStillStore } from "@/lib/store/still-store";
@@ -52,6 +53,7 @@ function Onboarding() {
       <div className="mx-auto flex min-h-dvh w-full max-w-lg flex-col justify-center px-6 py-16">
         {step === 0 ? (
           <div>
+            <BackLink fallback="/" className="mb-6" />
             <Link to="/" className="inline-flex">
               <StillMark className="rise-in size-11" />
             </Link>

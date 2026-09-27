@@ -5,6 +5,7 @@ import { ArrowRight } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { CrisisCard } from "@/components/crisis-card";
+import { BackLink } from "@/components/back-link";
 import { SiteChrome, StillPhoto } from "@/components/site-chrome";
 import { useStillStore } from "@/lib/store/still-store";
 
@@ -16,6 +17,7 @@ export function AboutPage() {
   return (
     <SiteChrome current="about">
       <article className="mx-auto max-w-5xl px-5 py-8 sm:py-16">
+        <BackLink fallback="/" className="mb-4" />
         <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted">About</p>
         <h1 className="font-display mt-3 max-w-2xl text-3xl font-medium leading-tight tracking-tight sm:text-5xl">
           Still is an AI companion. It will not pretend to be more.
@@ -70,8 +72,7 @@ export function AboutPage() {
                 Still is designed as a companion, and it says so in the room, not in the fine print.
               </p>
               <p>
-                Talks and memory live on this device for now. You can export or erase everything from
-                You. A later backend can sync; until then, this space is yours locally.
+                Talks and memory are kept with your account. You can export or erase everything from You.
               </p>
             </div>
           </div>

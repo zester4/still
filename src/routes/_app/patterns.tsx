@@ -2,6 +2,7 @@
 
 import { Link } from "@/lib/nav";
 import { format } from "date-fns";
+import { BackLink } from "@/components/back-link";
 import { Button } from "@/components/ui/button";
 import { INTENT_LABEL, MOOD_LABEL, type Intent, type Mood } from "@/lib/companion/types";
 import { intentPattern, useStillStore } from "@/lib/store/still-store";
@@ -29,6 +30,7 @@ export function PatternsPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 py-6 sm:py-8">
+      <BackLink fallback="/you" className="mb-3" />
       <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted">Patterns</p>
       <h1 className="font-display mt-1 text-2xl font-medium tracking-tight sm:text-3xl">How it's been, not a score.</h1>
       <p className="mt-2 max-w-md text-sm leading-relaxed text-muted">

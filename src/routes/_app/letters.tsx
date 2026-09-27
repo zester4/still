@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { format } from "date-fns";
+import { BackLink } from "@/components/back-link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -60,6 +61,7 @@ export function LettersPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 py-6 sm:py-8">
+      <BackLink fallback="/you" className="mb-3" />
       <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted">Letters</p>
       <div className="mt-1 flex items-end justify-between gap-3">
         <h1 className="font-display text-2xl font-medium tracking-tight sm:text-3xl">You don't have to send it.</h1>
@@ -68,7 +70,7 @@ export function LettersPage() {
         </Button>
       </div>
       <p className="mt-2 max-w-md text-sm leading-relaxed text-muted">
-        To someone, or to yourself. It stays on this device. Still will not answer it.
+        To someone, or to yourself. It stays with your account. Still will not answer it.
       </p>
 
       {letters.length === 0 ? (
@@ -119,6 +121,7 @@ function LetterEditor({
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 py-6 sm:py-8">
+      <BackLink fallback="/letters" className="mb-3" onClick={onCancel} />
       <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted">A letter</p>
       <h1 className="font-display mt-1 text-2xl font-medium tracking-tight sm:text-3xl">Write, and leave it here.</h1>
 

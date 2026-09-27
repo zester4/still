@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { StillMark } from "@/components/still-mark";
+import { BackLink } from "@/components/back-link";
 
 export function LoginPage() {
   const router = useRouter();
@@ -39,6 +40,7 @@ export function LoginPage() {
   return (
     <div className="still-vignette min-h-dvh">
       <div className="mx-auto flex min-h-dvh w-full max-w-lg flex-col justify-center px-6 py-16">
+        <BackLink fallback="/" className="mb-6" />
         <Link to="/" className="inline-flex">
           <StillMark className="rise-in size-11" />
         </Link>

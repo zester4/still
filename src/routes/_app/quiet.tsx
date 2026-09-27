@@ -2,6 +2,7 @@
 
 import { Link } from "@/lib/nav";
 import { useEffect, useState } from "react";
+import { BackLink } from "@/components/back-link";
 import { Button } from "@/components/ui/button";
 import { CrisisCard } from "@/components/crisis-card";
 import { StillPhoto } from "@/components/site-chrome";
@@ -21,6 +22,7 @@ export function QuietPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 py-6 sm:py-8">
+      <BackLink fallback="/talk" className="mb-3" />
       <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted">Quiet</p>
       <h1 className="font-display mt-1 text-2xl font-medium tracking-tight sm:text-3xl">A room, not a program.</h1>
       <p className="mt-2 max-w-md text-sm leading-relaxed text-muted">

@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { Link, useRouterState } from "@/lib/nav";
 import { BookOpen, Layers, Moon, MessageCircle, Notebook, PenLine, UserRound } from "lucide-react";
 import { StillWordmark } from "./still-mark";
+import { BackLink } from "./back-link";
 import { cn } from "@/lib/utils";
 
 const MOBILE_NAV = [
@@ -63,9 +64,9 @@ export function AppShell({ children }: { children: ReactNode }) {
         </aside>
 
         <div className="flex min-h-dvh min-w-0 flex-1 flex-col pb-[4.5rem] md:pb-0">
-          <header className="flex items-center justify-between border-b border-line px-4 py-2.5 md:hidden">
+          <header className="flex items-center gap-1 border-b border-line px-2 py-2 md:hidden">
+            <BackLink fallback="/talk" />
             <StillWordmark size="sm" />
-            <span className="text-xs text-subtle">Not therapy</span>
           </header>
           <main className="flex min-h-0 flex-1 flex-col">{children}</main>
         </div>

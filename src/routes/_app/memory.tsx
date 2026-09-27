@@ -2,6 +2,7 @@
 
 import { useMemo, useState, type ReactNode } from "react";
 import { Pencil, Plus, Trash2 } from "lucide-react";
+import { BackLink } from "@/components/back-link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -82,12 +83,13 @@ export function MemoryPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 py-6 sm:py-8">
+      <BackLink fallback="/talk" className="mb-3" />
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted">Memory</p>
           <h1 className="font-display mt-1 text-2xl font-medium tracking-tight sm:text-3xl">What Still keeps</h1>
           <p className="mt-2 max-w-md text-sm leading-relaxed text-muted">
-            Only what you allow. Edit or delete anything. This lives on this device until a backend is added.
+            Only what you allow. Edit or delete anything. It is kept with your account.
           </p>
         </div>
         <div className="flex gap-2">

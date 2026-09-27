@@ -6,6 +6,7 @@ import { Thread } from "@/components/chat/thread";
 import { Composer } from "@/components/chat/composer";
 import { CheckInPrompt } from "@/components/chat/check-in-prompt";
 import { PulseBar } from "@/components/chat/pulse-bar";
+import { BackLink } from "@/components/back-link";
 import { Button } from "@/components/ui/button";
 import { requestMemoryExtract, sendToCompanion } from "@/lib/companion/send";
 import type { Intent } from "@/lib/companion/types";
@@ -162,14 +163,17 @@ export function TalkPage() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="flex items-center justify-between gap-2 border-b border-line px-3 py-2 sm:gap-3 sm:px-4 sm:py-3">
-        <div className="min-w-0">
-          <p className="text-sm text-fg">Here with you</p>
-          {continuity ? (
-            <p className="truncate text-xs text-muted">Last time you mentioned {continuity}</p>
-          ) : (
-            <p className="text-xs text-muted">Whenever you're ready</p>
-          )}
+      <div className="flex items-center justify-between gap-2 border-b border-line px-2 py-2 sm:gap-3 sm:px-3 sm:py-3">
+        <div className="flex min-w-0 items-center gap-1">
+          <BackLink fallback="/" className="hidden md:inline-flex" />
+          <div className="min-w-0 px-1 sm:px-1.5">
+            <p className="text-sm text-fg">Here with you</p>
+            {continuity ? (
+              <p className="truncate text-xs text-muted">Last time you mentioned {continuity}</p>
+            ) : (
+              <p className="text-xs text-muted">Whenever you're ready</p>
+            )}
+          </div>
         </div>
         <div className="flex shrink-0 items-center gap-1">
           <Button variant="ghost" size="sm" asChild>
