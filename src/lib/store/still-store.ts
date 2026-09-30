@@ -17,8 +17,8 @@ import type {
 } from "@/lib/companion/types";
 
 const CHECKIN_MS: Record<CheckInFrequency, number> = {
-  daily: 20 * 60 * 60 * 1000,
-  few: 60 * 60 * 60 * 1000,
+  daily: 24 * 60 * 60 * 1000,
+  few: 3 * 24 * 60 * 60 * 1000,
   weekly: 6 * 24 * 60 * 60 * 1000,
 };
 

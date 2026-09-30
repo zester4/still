@@ -48,8 +48,8 @@ export function YouPage() {
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 py-6 sm:py-8">
       <BackLink fallback="/talk" className="mb-3" />
-      <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted">You</p>
-      <h1 className="font-display mt-1 text-2xl font-medium tracking-tight sm:text-3xl">This space is yours.</h1>
+      <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted">Settings</p>
+      <h1 className="font-display mt-1 text-2xl font-medium tracking-tight sm:text-3xl">Your space is yours.</h1>
       <p className="mt-2 text-sm leading-relaxed text-muted">
         Here since {format(new Date(createdAt), "MMMM d, yyyy")}. {conversations.length}{" "}
         {conversations.length === 1 ? "page" : "pages"} of talk. {memories.length} remembered.
@@ -62,6 +62,29 @@ export function YouPage() {
         <Place to="/patterns" title="Patterns" body="How the weeks have felt. Not a score." />
         <Place to="/memory" title="Memory" body="What you asked Still to keep." />
         <Place to="/check-ins" title="Check-ins" body="A knock, if you want one." />
+      </section>
+
+      <section className="mt-4 rounded-xl bg-surface p-5 shadow-[var(--shadow-border)]">
+        <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted">Preferences</p>
+        <p className="mt-2 text-sm leading-relaxed text-muted">
+          Keep the parts of Still that help, and change them whenever you need.
+        </p>
+        <div className="mt-4 grid gap-2 sm:grid-cols-2">
+          <Link
+            to="/memory"
+            className="rounded-lg bg-surface-2 px-3 py-3 text-sm text-fg transition-colors hover:bg-line"
+          >
+            <span className="font-medium">Memory</span>
+            <span className="mt-1 block text-xs text-muted">Review what Still keeps.</span>
+          </Link>
+          <Link
+            to="/check-ins"
+            className="rounded-lg bg-surface-2 px-3 py-3 text-sm text-fg transition-colors hover:bg-line"
+          >
+            <span className="font-medium">Check-ins</span>
+            <span className="mt-1 block text-xs text-muted">Choose if Still knocks.</span>
+          </Link>
+        </div>
       </section>
 
       <section className="mt-4 rounded-xl bg-surface p-5 shadow-[var(--shadow-border)]">

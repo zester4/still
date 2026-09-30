@@ -25,6 +25,7 @@ const KINDS: MemoryKind[] = ["theme", "person", "situation", "coping", "goal"];
 export function MemoryPage() {
   const memories = useStillStore((s) => s.memories);
   const conversations = useStillStore((s) => s.conversations);
+  const activeConversationId = useStillStore((s) => s.activeConversationId);
   const addMemories = useStillStore((s) => s.addMemories);
   const upsertMemory = useStillStore((s) => s.upsertMemory);
   const deleteMemory = useStillStore((s) => s.deleteMemory);
@@ -58,7 +59,7 @@ export function MemoryPage() {
   }
 
   async function fromTalk() {
-    const convo = conversations[0];
+    const convo = conversations.find((item) => item.id === activeConversationId) ?? conversations[0];
     if (!convo || convo.messages.length < 2) {
       setExtractNote("Have a little more of a talk first — then Still can offer notes.");
       return;

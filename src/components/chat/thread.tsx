@@ -13,13 +13,17 @@ export function Thread({
   listening: boolean;
 }) {
   const endRef = useRef<HTMLDivElement>(null);
+  const lastContentLength = messages[messages.length - 1]?.content.length ?? 0;
 
   useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-  }, [messages, listening, messages[messages.length - 1]?.content]);
+    const frame = window.requestAnimationFrame(() => {
+      endRef.current?.scrollIntoView({ behavior: listening ? "auto" : "smooth", block: "end" });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [messages.length, listening, lastContentLength]);
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-6 sm:gap-7 sm:py-8">
+    <div className="mx-auto flex w-full max-w-2xl flex-col gap-5 px-4 py-6 [overflow-anchor:none] sm:gap-6 sm:py-8">
       {messages.map((m) => (
         <MessageBubble key={m.id} message={m} />
       ))}
@@ -33,7 +37,7 @@ function MessageBubble({ message }: { message: ChatMessage }) {
   if (message.role === "user") {
     return (
       <div className="flex justify-end">
-        <div className="max-w-[min(100%,34rem)] rounded-[18px] rounded-br-sm bg-surface-2 px-4 py-3 text-[0.9375rem] leading-relaxed text-fg shadow-[var(--shadow-border)]">
+        <div className="max-w-[min(100%,34rem)] rounded-[18px] rounded-br-sm bg-surface-2 px-4 py-3 text-[0.875rem] leading-relaxed text-fg shadow-[var(--shadow-border)] sm:text-[0.9rem]">
           <p className="whitespace-pre-wrap">{message.content}</p>
         </div>
       </div>
@@ -46,7 +50,7 @@ function MessageBubble({ message }: { message: ChatMessage }) {
         <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.16em] text-subtle">Still</p>
         <div
           className={cn(
-            "font-display text-[1.05rem] leading-[1.55] text-fg",
+            "font-display text-[0.98rem] leading-[1.55] text-fg sm:text-[1rem]",
             message.crisis && "text-fg",
           )}
         >

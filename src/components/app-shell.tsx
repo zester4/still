@@ -68,7 +68,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </aside>
 
-        <div className="flex min-h-dvh min-w-0 flex-1 flex-col pb-[4.5rem] md:pb-0">
+        <div className="flex min-h-dvh min-w-0 flex-1 flex-col pb-[5rem] md:pb-0">
           <header className="flex items-center gap-1 border-b border-line px-2 py-2 md:hidden">
             <BackLink fallback="/talk" />
             <StillWordmark size="sm" />
@@ -77,7 +77,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </div>
 
-      <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-bg/92 md:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-40 h-20 border-t border-line bg-bg/95 backdrop-blur-sm [padding-bottom:env(safe-area-inset-bottom)] md:hidden">
         <div className="mx-auto grid max-w-lg grid-cols-4 px-2 pb-[max(0.35rem,env(safe-area-inset-bottom))] pt-1">
           {MOBILE_NAV.map((item) => {
             const active =

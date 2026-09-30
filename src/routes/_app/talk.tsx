@@ -1,14 +1,14 @@
 "use client";
 
 import { Link } from "@/lib/nav";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Thread } from "@/components/chat/thread";
 import { Composer } from "@/components/chat/composer";
 import { CheckInPrompt } from "@/components/chat/check-in-prompt";
 import { PulseBar } from "@/components/chat/pulse-bar";
 import { BackLink } from "@/components/back-link";
 import { Button } from "@/components/ui/button";
-import { requestMemoryExtract, sendToCompanion } from "@/lib/companion/send";
+import { sendToCompanion } from "@/lib/companion/send";
 import type { Intent } from "@/lib/companion/types";
 import { uid } from "@/lib/utils";
 import {
@@ -21,6 +21,8 @@ export function TalkPage() {
   const conversations = useStillStore((s) => s.conversations);
   const activeId = useStillStore((s) => s.activeConversationId);
   const memories = useStillStore((s) => s.memories);
+  const hydrated = useStillStore((s) => s.hydrated);
+  const checkIns = useStillStore((s) => s.checkIns);
   const ensureConversation = useStillStore((s) => s.ensureConversation);
   const addMessage = useStillStore((s) => s.addMessage);
   const updateMessage = useStillStore((s) => s.updateMessage);
@@ -28,17 +30,22 @@ export function TalkPage() {
   const startNewPage = useStillStore((s) => s.startNewPage);
   const snoozeCheckIn = useStillStore((s) => s.snoozeCheckIn);
   const answerCheckIn = useStillStore((s) => s.answerCheckIn);
-  const addMemories = useStillStore((s) => s.addMemories);
   const addPulse = useStillStore((s) => s.addPulse);
   const markPulseAsked = useStillStore((s) => s.markPulseAsked);
 
   const convo = conversations.find((c) => c.id === activeId);
   const [draft, setDraft] = useState("");
   const [listening, setListening] = useState(false);
-  const [checkInOpen, setCheckInOpen] = useState(() => checkInIsDue(useStillStore.getState()));
+  const [checkInOpen, setCheckInOpen] = useState(false);
   const [pulseOpen, setPulseOpen] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const sending = useRef(false);
+
+  useEffect(() => {
+    if (hydrated && checkInIsDue(useStillStore.getState())) {
+      setCheckInOpen(true);
+    }
+  }, [hydrated, checkIns.enabled, checkIns.frequency, checkIns.lastShownAt, checkIns.lastAnsweredAt]);
 
   const continuity = useMemo(() => {
     const prior = conversations.filter((c) => c.id !== convo?.id && c.messages.some((m) => m.role === "user"));
@@ -145,16 +152,6 @@ export function TalkPage() {
     const users = userMessageCount(afterConvo);
     if (!gotCrisis && afterConvo && users >= 4 && !afterConvo.pulseAsked) {
       setPulseOpen(true);
-    }
-    if (!gotCrisis && afterConvo && users > 0 && users % 6 === 0) {
-      const items = await requestMemoryExtract({
-        history: afterConvo.messages.map((m) => ({ role: m.role, content: m.content })),
-        existing: after.memories,
-      });
-      if (items.length) {
-        addMemories(items.map((i) => ({ ...i, source: "still" as const })));
-        setNotice("Still noted a few things. You can edit them in Memory.");
-      }
     }
   }
 

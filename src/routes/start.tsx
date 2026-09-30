@@ -2,6 +2,7 @@
 
 import { Link, useNavigate } from "@/lib/nav";
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,10 +31,12 @@ export function StartPage() {
 }
 
 function Onboarding() {
+  const { data: session } = useSession();
   const complete = useStillStore((s) => s.completeOnboarding);
   const navigate = useNavigate();
+  const accountName = session?.user?.name?.trim() ?? "";
   const [step, setStep] = useState(0);
-  const [name, setName] = useState("");
+  const [name, setName] = useState(accountName);
   const [concerns, setConcerns] = useState<string[]>([]);
   const [checkIns, setCheckIns] = useState(false);
   const [frequency, setFrequency] = useState<CheckInFrequency>("few");
@@ -103,7 +106,7 @@ function Onboarding() {
               <Button variant="ghost" onClick={() => setStep(0)}>
                 Back
               </Button>
-              <Button onClick={() => setStep(2)}>I understand</Button>
+              <Button onClick={() => setStep(accountName ? 3 : 2)}>I understand</Button>
             </div>
           </div>
         ) : null}
@@ -179,7 +182,7 @@ function Onboarding() {
               })}
             </div>
             <div className="mt-10 flex flex-wrap gap-2">
-              <Button variant="ghost" onClick={() => setStep(2)}>
+              <Button variant="ghost" onClick={() => setStep(accountName ? 1 : 2)}>
                 Back
               </Button>
               <Button onClick={() => setStep(4)}>Continue</Button>
