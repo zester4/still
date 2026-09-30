@@ -32,6 +32,8 @@ export function YouPage() {
   const memories = useStillStore((s) => s.memories);
   const [confirmWipe, setConfirmWipe] = useState(false);
   const [draftName, setDraftName] = useState(name);
+  const [erasing, setErasing] = useState(false);
+  const [eraseError, setEraseError] = useState<string | null>(null);
 
   const pattern = useMemo(() => summarizeIntents(intentPattern(useStillStore.getState())), [conversations]);
 
@@ -238,18 +240,28 @@ export function YouPage() {
             <Button variant="ghost" onClick={() => setConfirmWipe(false)}>
               Keep it
             </Button>
-            <Button
-              variant="crisis"
-              onClick={() => {
+          <Button
+            variant="crisis"
+            disabled={erasing}
+            onClick={async () => {
+              setErasing(true);
+              setEraseError(null);
+              try {
+                const response = await fetch("/api/still", { method: "DELETE" });
+                if (!response.ok) throw new Error("The account could not be erased.");
                 wipeAll();
-                void fetch("/api/still", { method: "DELETE" });
                 setConfirmWipe(false);
-                window.location.href = "/";
-              }}
-            >
-              Erase
-            </Button>
+                await signOut({ callbackUrl: "/" });
+              } catch (error) {
+                setEraseError(error instanceof Error ? error.message : "The account could not be erased.");
+                setErasing(false);
+              }
+            }}
+          >
+            {erasing ? "Erasing…" : "Erase everything"}
+          </Button>
           </div>
+          {eraseError ? <p className="mt-3 text-sm text-crisis">{eraseError}</p> : null}
         </DialogContent>
       </Dialog>
     </div>

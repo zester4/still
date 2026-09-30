@@ -1,4 +1,5 @@
-import { eq } from "drizzle-orm";
+import { and, eq, gt, isNull } from "drizzle-orm";
+import { createHash, randomBytes } from "node:crypto";
 import { getDb } from "./config";
 import {
   checkInEntries,
@@ -8,6 +9,7 @@ import {
   messages,
   profiles,
   pulses,
+  passwordResetTokens,
   users,
 } from "./schema";
 import type {
@@ -87,6 +89,61 @@ export async function findUserById(id: string): Promise<UserRow | null> {
     email: user.email,
     passwordHash: user.passwordHash,
   };
+}
+
+function hashResetToken(token: string) {
+  return createHash("sha256").update(token).digest("hex");
+}
+
+export async function createPasswordResetToken(email: string) {
+  const db = await getDb();
+  const normalized = email.trim().toLowerCase();
+  const [user] = await db.select().from(users).where(eq(users.email, normalized)).limit(1);
+  if (!user) return null;
+
+  const token = randomBytes(32).toString("hex");
+  const now = new Date();
+  const expiresAt = new Date(now.getTime() + 60 * 60 * 1000).toISOString();
+  await db.delete(passwordResetTokens).where(eq(passwordResetTokens.userId, user.id));
+  await db.insert(passwordResetTokens).values({
+    id: crypto.randomUUID(),
+    userId: user.id,
+    tokenHash: hashResetToken(token),
+    expiresAt,
+  });
+  return { token, email: user.email, name: user.name };
+}
+
+export async function resetPassword(token: string, passwordHash: string): Promise<boolean> {
+  const db = await getDb();
+  const now = new Date().toISOString();
+  const [row] = await db
+    .select()
+    .from(passwordResetTokens)
+    .where(
+      and(
+        eq(passwordResetTokens.tokenHash, hashResetToken(token)),
+        isNull(passwordResetTokens.usedAt),
+        gt(passwordResetTokens.expiresAt, now),
+      ),
+    )
+    .limit(1);
+  if (!row) return false;
+
+  await db
+    .update(passwordResetTokens)
+    .set({ usedAt: now })
+    .where(and(eq(passwordResetTokens.id, row.id), isNull(passwordResetTokens.usedAt)));
+  const [claimed] = await db
+    .select({ id: passwordResetTokens.id })
+    .from(passwordResetTokens)
+    .where(and(eq(passwordResetTokens.id, row.id), eq(passwordResetTokens.usedAt, now)))
+    .limit(1);
+  if (!claimed) return false;
+
+  await db.update(users).set({ passwordHash, updatedAt: now }).where(eq(users.id, row.userId));
+  await db.delete(passwordResetTokens).where(eq(passwordResetTokens.userId, row.userId));
+  return true;
 }
 
 function emptySnapshot(): StillSnapshot {
@@ -320,5 +377,6 @@ export async function saveSnapshot(userId: string, snap: StillSnapshot): Promise
 }
 
 export async function eraseUserData(userId: string): Promise<void> {
-  await saveSnapshot(userId, emptySnapshot());
+  const db = await getDb();
+  await db.delete(users).where(eq(users.id, userId));
 }

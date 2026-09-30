@@ -28,14 +28,27 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           .toLowerCase();
         const password = String(credentials?.password ?? "");
         if (!email || !password) return null;
-        const user = await findUserByEmail(email);
-        if (!user) return null;
-        const ok = await compare(password, user.passwordHash);
-        if (!ok) return null;
-        return { id: user.id, email: user.email, name: user.name };
+        try {
+          const user = await findUserByEmail(email);
+          if (!user) return null;
+          const ok = await compare(password, user.passwordHash);
+          if (!ok) return null;
+          return { id: user.id, email: user.email, name: user.name };
+        } catch (error) {
+          console.error("[auth] credential lookup failed", error);
+          return null;
+        }
       },
     }),
   ],
+  logger: {
+    error(error) {
+      // Invalid credentials are an expected user-facing outcome. Database and
+      // configuration failures are logged by authorize with their context.
+      if (String(error) === "CredentialsSignin" || (error as { type?: string })?.type === "CredentialsSignin") return;
+      console.error("[auth]", error);
+    },
+  },
   callbacks: {
     async jwt({ token, user }) {
       if (user?.id) token.sub = user.id;

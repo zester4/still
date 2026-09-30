@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Link } from "@/lib/nav";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/password-input";
 import { Label } from "@/components/ui/label";
 import { StillMark } from "@/components/still-mark";
 import { BackLink } from "@/components/back-link";
@@ -64,12 +65,14 @@ export function LoginPage() {
               required
             />
           </div>
+          <Link to="/forgot-password" className="-mt-2 text-right text-xs text-muted hover:text-fg hover:underline">
+            Forgot your password?
+          </Link>
           <div>
             <Label htmlFor="password">Password</Label>
-            <Input
+            <PasswordInput
               id="password"
               className="mt-1.5"
-              type="password"
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}

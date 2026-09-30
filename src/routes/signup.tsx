@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Link } from "@/lib/nav";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/password-input";
 import { Label } from "@/components/ui/label";
 import { StillMark } from "@/components/still-mark";
 import { BackLink } from "@/components/back-link";
@@ -88,10 +89,9 @@ export function SignupPage() {
           </div>
           <div>
             <Label htmlFor="password">Password</Label>
-            <Input
+            <PasswordInput
               id="password"
               className="mt-1.5"
-              type="password"
               autoComplete="new-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
