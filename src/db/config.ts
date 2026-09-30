@@ -50,6 +50,13 @@ export async function getDb(): Promise<StillDb> {
     throw new Error("src/db/config is server-only.");
   }
 
+  // Vercel instances are ephemeral. Falling back to an in-memory database in
+  // production makes signup appear to work, then loses the account on the next
+  // serverless request. Require the durable Postgres connection there.
+  if (!databaseUrl && process.env.VERCEL === "1") {
+    throw new Error("DATABASE_URL must be configured for the deployed app.");
+  }
+
   globalRef.__stillDrizzle__ ??= (async () => {
     if (databaseUrl) {
       globalRef.__stillPgPool__ ??= new pg.Pool({

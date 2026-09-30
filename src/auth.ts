@@ -3,9 +3,14 @@ import Credentials from "next-auth/providers/credentials";
 import { compare } from "bcryptjs";
 import { findUserByEmail } from "@/db/queries";
 
+const configuredSecret = process.env.AUTH_SECRET?.trim() || process.env.NEXTAUTH_SECRET?.trim();
+if (process.env.VERCEL === "1" && !configuredSecret) {
+  throw new Error("AUTH_SECRET must be configured for the deployed app.");
+}
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
   trustHost: true,
-  secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || "still-dev-auth-secret",
+  secret: configuredSecret || "still-dev-auth-secret",
   session: { strategy: "jwt", maxAge: 60 * 60 * 24 * 30 },
   pages: {
     signIn: "/login",
