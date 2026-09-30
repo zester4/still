@@ -2,6 +2,7 @@ import { createElement } from "react";
 import { render } from "react-email";
 import { createPasswordResetToken } from "@/db/queries";
 import { PasswordResetEmail } from "@/components/email/password-reset";
+import { rateLimit } from "@/lib/upstash/server";
 
 export const runtime = "nodejs";
 
@@ -33,6 +34,9 @@ async function sendResetEmail(input: { email: string; name: string; token: strin
 }
 
 export async function POST(request: Request) {
+  const forwarded = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  const limit = await rateLimit(`password-reset:${forwarded}`, 5, 3600);
+  if (!limit.allowed) return Response.json({ error: "Too many requests. Try again later." }, { status: 429 });
   let body: { email?: string };
   try {
     body = (await request.json()) as { email?: string };

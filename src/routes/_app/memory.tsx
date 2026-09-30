@@ -6,6 +6,7 @@ import { BackLink } from "@/components/back-link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
@@ -29,12 +30,15 @@ export function MemoryPage() {
   const addMemories = useStillStore((s) => s.addMemories);
   const upsertMemory = useStillStore((s) => s.upsertMemory);
   const deleteMemory = useStillStore((s) => s.deleteMemory);
+  const memoryEnabled = useStillStore((s) => s.preferences.memoryEnabled);
+  const setPreferences = useStillStore((s) => s.setPreferences);
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<MemoryKind | "all">("all");
   const [editing, setEditing] = useState<MemoryItem | null>(null);
   const [open, setOpen] = useState(false);
   const [extracting, setExtracting] = useState(false);
   const [extractNote, setExtractNote] = useState<string | null>(null);
+  const [suggestions, setSuggestions] = useState<Array<{ kind: MemoryKind; title: string; detail: string }>>([]);
 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -59,6 +63,10 @@ export function MemoryPage() {
   }
 
   async function fromTalk() {
+    if (!memoryEnabled) {
+      setExtractNote("Memory is off. Turn it on when you want Still to remember something.");
+      return;
+    }
     const convo = conversations.find((item) => item.id === activeConversationId) ?? conversations[0];
     if (!convo || convo.messages.length < 2) {
       setExtractNote("Have a little more of a talk first — then Still can offer notes.");
@@ -74,8 +82,8 @@ export function MemoryPage() {
       if (!items.length) {
         setExtractNote("Nothing new to keep. You can add something yourself.");
       } else {
-        addMemories(items.map((i) => ({ ...i, source: "still" as const })));
-        setExtractNote(`Added ${items.length} ${items.length === 1 ? "note" : "notes"}. Edit anything that feels off.`);
+        setSuggestions(items);
+        setExtractNote("Still found a few possible memories. Choose what deserves to stay.");
       }
     } finally {
       setExtracting(false);
@@ -104,7 +112,67 @@ export function MemoryPage() {
         </div>
       </header>
 
+      <section className="mt-6 flex items-center justify-between gap-4 rounded-xl bg-surface p-4 shadow-[var(--shadow-border)]">
+        <div>
+          <p className="text-sm font-medium">Let Still use memory</p>
+          <p className="mt-1 max-w-md text-xs leading-relaxed text-muted">
+            When this is off, existing memories stay here but are not used to shape replies.
+          </p>
+        </div>
+        <Switch
+          checked={memoryEnabled}
+          onCheckedChange={(enabled) => {
+            setPreferences({ memoryEnabled: enabled });
+            void fetch("/api/preferences", {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ memoryEnabled: enabled }),
+            });
+          }}
+        />
+      </section>
+
       {extractNote ? <p className="mt-4 text-sm text-muted">{extractNote}</p> : null}
+
+      {suggestions.length ? (
+        <section className="mt-4 rounded-xl bg-surface-2 p-4 shadow-[var(--shadow-border)]">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted">Suggested memories</p>
+              <p className="mt-1 text-sm text-fg">Keep only what feels true and useful.</p>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setSuggestions([]);
+                setExtractNote("Those suggestions were let go.");
+              }}
+            >
+              Dismiss
+            </Button>
+          </div>
+          <ul className="mt-3 space-y-2">
+            {suggestions.map((item, index) => (
+              <li key={`${item.title}-${index}`} className="rounded-lg bg-surface px-3 py-3">
+                <p className="text-[11px] uppercase tracking-[0.12em] text-muted">{MEMORY_KIND_LABEL[item.kind]}</p>
+                <p className="mt-1 text-sm font-medium text-fg">{item.title}</p>
+                <p className="mt-1 text-sm leading-relaxed text-muted">{item.detail}</p>
+              </li>
+            ))}
+          </ul>
+          <Button
+            className="mt-3"
+            onClick={() => {
+              addMemories(suggestions.map((item) => ({ ...item, source: "still" as const })));
+              setSuggestions([]);
+              setExtractNote("Kept. You can edit or forget these at any time.");
+            }}
+          >
+            Keep these memories
+          </Button>
+        </section>
+      ) : null}
 
       <div className="mt-6 flex flex-col gap-3">
         <Input

@@ -55,6 +55,13 @@ export const profiles = pgTable("profiles", {
   onboarded: boolean("onboarded").notNull().default(false),
   checkInsEnabled: boolean("check_ins_enabled").notNull().default(false),
   checkInFrequency: text("check_in_frequency").notNull().default("few"),
+  memoryEnabled: boolean("memory_enabled").notNull().default(true),
+  notificationsEnabled: boolean("notifications_enabled").notNull().default(false),
+  emailNotificationsEnabled: boolean("email_notifications_enabled").notNull().default(false),
+  timezone: text("timezone").notNull().default("UTC"),
+  checkInTime: text("check_in_time").notNull().default("20:00"),
+  quietHoursStart: text("quiet_hours_start").notNull().default("22:00"),
+  quietHoursEnd: text("quiet_hours_end").notNull().default("08:00"),
   lastShownAt: text("last_shown_at"),
   lastAnsweredAt: text("last_answered_at"),
   createdAt: timestamp("created_at", { withTimezone: true, mode: "string" })
@@ -157,4 +164,46 @@ export const pulses = pgTable(
     value: text("value").notNull(),
   },
   (t) => [index("pulses_user_id_idx").on(t.userId)],
+);
+
+export const notifications = pgTable(
+  "notifications",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    kind: text("kind").notNull(),
+    title: text("title").notNull(),
+    body: text("body").notNull(),
+    href: text("href").notNull().default("/talk"),
+    readAt: timestamp("read_at", { withTimezone: true, mode: "string" }),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [index("notifications_user_id_idx").on(t.userId)],
+);
+
+export const checkInSchedules = pgTable(
+  "check_in_schedules",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    qstashScheduleId: text("qstash_schedule_id"),
+    frequency: text("frequency").notNull().default("few"),
+    enabled: boolean("enabled").notNull().default(false),
+    timezone: text("timezone").notNull().default("UTC"),
+    checkInTime: text("check_in_time").notNull().default("20:00"),
+    lastSentAt: timestamp("last_sent_at", { withTimezone: true, mode: "string" }),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [uniqueIndex("check_in_schedules_user_id_idx").on(t.userId)],
 );

@@ -7,10 +7,12 @@ import {
   letters,
   memories,
   messages,
+  notifications,
   profiles,
   pulses,
   passwordResetTokens,
   users,
+  checkInSchedules,
 } from "./schema";
 import type {
   CheckInEntry,
@@ -20,6 +22,11 @@ import type {
   MemoryItem,
   PulseEntry,
   StillState,
+} from "@/lib/companion/types";
+import type {
+  NotificationItem,
+  NotificationKind,
+  StillPreferences,
 } from "@/lib/companion/types";
 
 export type StillSnapshot = Omit<StillState, "hydrated">;
@@ -162,6 +169,16 @@ function emptySnapshot(): StillSnapshot {
       lastAnsweredAt: null,
       entries: [],
     },
+    preferences: {
+      memoryEnabled: true,
+      notificationsEnabled: false,
+      emailNotificationsEnabled: false,
+      timezone: "UTC",
+      checkInTime: "20:00",
+      quietHoursStart: "22:00",
+      quietHoursEnd: "08:00",
+    },
+    notifications: [],
     pulses: [],
     createdAt: new Date().toISOString(),
   };
@@ -176,6 +193,10 @@ export async function loadSnapshot(userId: string): Promise<StillSnapshot> {
   const letterRows = await db.select().from(letters).where(eq(letters.userId, userId));
   const checkRows = await db.select().from(checkInEntries).where(eq(checkInEntries.userId, userId));
   const pulseRows = await db.select().from(pulses).where(eq(pulses.userId, userId));
+  const notificationRows = await db
+    .select()
+    .from(notifications)
+    .where(eq(notifications.userId, userId));
 
   if (!profile && convoRows.length === 0) return emptySnapshot();
 
@@ -248,6 +269,29 @@ export async function loadSnapshot(userId: string): Promise<StillSnapshot> {
         }),
       ),
     },
+    preferences: {
+      memoryEnabled: profile?.memoryEnabled ?? true,
+      notificationsEnabled: profile?.notificationsEnabled ?? false,
+      emailNotificationsEnabled: profile?.emailNotificationsEnabled ?? false,
+      timezone: profile?.timezone ?? "UTC",
+      checkInTime: profile?.checkInTime ?? "20:00",
+      quietHoursStart: profile?.quietHoursStart ?? "22:00",
+      quietHoursEnd: profile?.quietHoursEnd ?? "08:00",
+    },
+    notifications: notificationRows
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+      .slice(0, 50)
+      .map(
+        (n): NotificationItem => ({
+          id: n.id,
+          kind: n.kind as NotificationKind,
+          title: n.title,
+          body: n.body,
+          href: n.href,
+          readAt: n.readAt,
+          createdAt: n.createdAt,
+        }),
+      ),
     pulses: pulseRows.map(
       (p): PulseEntry => ({
         id: p.id,
@@ -273,6 +317,13 @@ export async function saveSnapshot(userId: string, snap: StillSnapshot): Promise
       onboarded: snap.onboarded,
       checkInsEnabled: snap.checkIns.enabled,
       checkInFrequency: snap.checkIns.frequency,
+      memoryEnabled: snap.preferences.memoryEnabled,
+      notificationsEnabled: snap.preferences.notificationsEnabled,
+      emailNotificationsEnabled: snap.preferences.emailNotificationsEnabled,
+      timezone: snap.preferences.timezone,
+      checkInTime: snap.preferences.checkInTime,
+      quietHoursStart: snap.preferences.quietHoursStart,
+      quietHoursEnd: snap.preferences.quietHoursEnd,
       lastShownAt: snap.checkIns.lastShownAt,
       lastAnsweredAt: snap.checkIns.lastAnsweredAt,
       createdAt: snap.createdAt,
@@ -285,6 +336,13 @@ export async function saveSnapshot(userId: string, snap: StillSnapshot): Promise
         onboarded: snap.onboarded,
         checkInsEnabled: snap.checkIns.enabled,
         checkInFrequency: snap.checkIns.frequency,
+        memoryEnabled: snap.preferences.memoryEnabled,
+        notificationsEnabled: snap.preferences.notificationsEnabled,
+        emailNotificationsEnabled: snap.preferences.emailNotificationsEnabled,
+        timezone: snap.preferences.timezone,
+        checkInTime: snap.preferences.checkInTime,
+        quietHoursStart: snap.preferences.quietHoursStart,
+        quietHoursEnd: snap.preferences.quietHoursEnd,
         lastShownAt: snap.checkIns.lastShownAt,
         lastAnsweredAt: snap.checkIns.lastAnsweredAt,
       },
@@ -374,6 +432,137 @@ export async function saveSnapshot(userId: string, snap: StillSnapshot): Promise
       })),
     );
   }
+}
+
+export type NotificationInput = {
+  kind: NotificationKind;
+  title: string;
+  body: string;
+  href?: string;
+};
+
+export async function createNotification(userId: string, input: NotificationInput): Promise<NotificationItem> {
+  const db = await getDb();
+  const [row] = await db
+    .insert(notifications)
+    .values({
+      id: crypto.randomUUID(),
+      userId,
+      kind: input.kind,
+      title: input.title,
+      body: input.body,
+      href: input.href ?? "/talk",
+    })
+    .returning();
+  return {
+    id: row.id,
+    kind: row.kind as NotificationKind,
+    title: row.title,
+    body: row.body,
+    href: row.href,
+    readAt: row.readAt,
+    createdAt: row.createdAt,
+  };
+}
+
+export async function listNotifications(userId: string): Promise<NotificationItem[]> {
+  const db = await getDb();
+  const rows = await db.select().from(notifications).where(eq(notifications.userId, userId));
+  return rows
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+    .slice(0, 50)
+    .map((n) => ({
+      id: n.id,
+      kind: n.kind as NotificationKind,
+      title: n.title,
+      body: n.body,
+      href: n.href,
+      readAt: n.readAt,
+      createdAt: n.createdAt,
+    }));
+}
+
+export async function markNotificationsRead(userId: string, ids?: string[]): Promise<void> {
+  const db = await getDb();
+  const now = new Date().toISOString();
+  if (!ids?.length) {
+    await db.update(notifications).set({ readAt: now }).where(eq(notifications.userId, userId));
+    return;
+  }
+  for (const id of ids.slice(0, 100)) {
+    await db
+      .update(notifications)
+      .set({ readAt: now })
+      .where(and(eq(notifications.id, id), eq(notifications.userId, userId)));
+  }
+}
+
+export async function getPreferences(userId: string): Promise<StillPreferences> {
+  const db = await getDb();
+  const [profile] = await db.select().from(profiles).where(eq(profiles.userId, userId)).limit(1);
+  return {
+    memoryEnabled: profile?.memoryEnabled ?? true,
+    notificationsEnabled: profile?.notificationsEnabled ?? false,
+    emailNotificationsEnabled: profile?.emailNotificationsEnabled ?? false,
+    timezone: profile?.timezone ?? "UTC",
+    checkInTime: profile?.checkInTime ?? "20:00",
+    quietHoursStart: profile?.quietHoursStart ?? "22:00",
+    quietHoursEnd: profile?.quietHoursEnd ?? "08:00",
+  };
+}
+
+export async function savePreferences(userId: string, patch: Partial<StillPreferences>): Promise<StillPreferences> {
+  const current = await getPreferences(userId);
+  const next = { ...current, ...patch };
+  const db = await getDb();
+  await db
+    .insert(profiles)
+    .values({ userId, displayName: "", ...next })
+    .onConflictDoUpdate({
+      target: profiles.userId,
+      set: {
+        memoryEnabled: next.memoryEnabled,
+        notificationsEnabled: next.notificationsEnabled,
+        emailNotificationsEnabled: next.emailNotificationsEnabled,
+        timezone: next.timezone,
+        checkInTime: next.checkInTime,
+        quietHoursStart: next.quietHoursStart,
+        quietHoursEnd: next.quietHoursEnd,
+      },
+    });
+  return next;
+}
+
+export async function getCheckInSchedule(userId: string) {
+  const db = await getDb();
+  const [row] = await db.select().from(checkInSchedules).where(eq(checkInSchedules.userId, userId)).limit(1);
+  return row ?? null;
+}
+
+export async function saveCheckInSchedule(input: {
+  userId: string;
+  qstashScheduleId?: string | null;
+  frequency: string;
+  enabled: boolean;
+  timezone: string;
+  checkInTime: string;
+}) {
+  const db = await getDb();
+  const now = new Date().toISOString();
+  const [row] = await db
+    .insert(checkInSchedules)
+    .values({ id: crypto.randomUUID(), ...input, updatedAt: now })
+    .onConflictDoUpdate({
+      target: checkInSchedules.userId,
+      set: { ...input, updatedAt: now },
+    })
+    .returning();
+  return row;
+}
+
+export async function markCheckInSent(userId: string, at = new Date().toISOString()) {
+  const db = await getDb();
+  await db.update(checkInSchedules).set({ lastSentAt: at, updatedAt: at }).where(eq(checkInSchedules.userId, userId));
 }
 
 export async function eraseUserData(userId: string): Promise<void> {

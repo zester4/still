@@ -20,11 +20,11 @@ In some places, including Illinois, using AI as therapy is restricted. This app 
 - **Legal** — terms, privacy, disclaimer (not therapy), and safety
 - **Safety** — crisis language takes a hard-coded path (presence + real helplines), not a free-generated reply
 
-Data is stored per account (Neon + Drizzle). A copy can also live on this device.
+Data is stored per account (Neon + Drizzle). A copy can also live on this device. Memory is user-controlled: Still can suggest a memory, but it waits for approval before keeping it.
 
 ## Stack
 
-Next.js (App Router), NextAuth, Drizzle ORM, Neon (PGLite in preview), React 19, Tailwind v4.
+Next.js (App Router), NextAuth, Drizzle ORM, Neon (PGLite in preview), React 19, Tailwind v4, React Email, and optional Upstash Redis, Vector, and QStash.
 
 ## Run
 
@@ -36,6 +36,16 @@ npm run dev
 ```
 
 The companion talks through **OpenRouter** when `OPENROUTER_API_KEY` is set on the server (see `.env.example`). You can choose a model with `OPENROUTER_MODEL`. If the model is unreachable, Still stays present with an on-device listener. Crisis handling never depends on the model.
+
+### Optional Upstash services
+
+Set the variables in `.env.example` in production to enable the service-backed features:
+
+- **Redis** adds rate limits and duplicate-job protection.
+- **Vector** keeps an isolated, searchable copy of approved memories for relevant replies.
+- **QStash** schedules opt-in check-in reminders and retries delivery safely.
+
+Neon remains the source of truth. If an Upstash service is not configured, the core app continues to work with local and database-backed behavior.
 
 If this is a hard moment, reach a person:
 

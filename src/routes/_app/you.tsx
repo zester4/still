@@ -19,6 +19,7 @@ import { BackLink } from "@/components/back-link";
 import { INTENT_LABEL, type Intent } from "@/lib/companion/types";
 import { intentPattern, useStillStore } from "@/lib/store/still-store";
 import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
 
 export function YouPage() {
   const { data: session } = useSession();
@@ -30,12 +31,28 @@ export function YouPage() {
   const wipeAll = useStillStore((s) => s.wipeAll);
   const conversations = useStillStore((s) => s.conversations);
   const memories = useStillStore((s) => s.memories);
+  const checkIns = useStillStore((s) => s.checkIns);
+  const preferences = useStillStore((s) => s.preferences);
+  const setPreferences = useStillStore((s) => s.setPreferences);
   const [confirmWipe, setConfirmWipe] = useState(false);
   const [draftName, setDraftName] = useState(name);
   const [erasing, setErasing] = useState(false);
   const [eraseError, setEraseError] = useState<string | null>(null);
 
   const pattern = useMemo(() => summarizeIntents(intentPattern(useStillStore.getState())), [conversations]);
+
+  function savePreference(patch: Partial<typeof preferences>) {
+    setPreferences(patch);
+    void fetch("/api/preferences", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ...patch,
+        checkInsEnabled: checkIns.enabled,
+        checkInFrequency: checkIns.frequency,
+      }),
+    });
+  }
 
   function download() {
     const blob = new Blob([exportData()], { type: "application/json" });
@@ -86,6 +103,36 @@ export function YouPage() {
             <span className="font-medium">Check-ins</span>
             <span className="mt-1 block text-xs text-muted">Choose if Still knocks.</span>
           </Link>
+        </div>
+        <div className="mt-4 grid gap-2 sm:grid-cols-2">
+          <div className="flex items-center justify-between gap-3 rounded-lg bg-surface-2 px-3 py-3">
+            <div>
+              <p className="text-sm font-medium">Use memory in replies</p>
+              <p className="mt-1 text-xs text-muted">You can still review what is kept.</p>
+            </div>
+            <Switch
+              checked={preferences.memoryEnabled}
+              onCheckedChange={(enabled) => savePreference({ memoryEnabled: enabled })}
+            />
+          </div>
+          <div className="flex items-center justify-between gap-3 rounded-lg bg-surface-2 px-3 py-3">
+            <div>
+              <p className="text-sm font-medium">Allow notifications</p>
+              <p className="mt-1 text-xs text-muted">Only when you choose a check-in.</p>
+            </div>
+            <Switch
+              checked={preferences.notificationsEnabled}
+              onCheckedChange={(enabled) => savePreference({ notificationsEnabled: enabled })}
+            />
+          </div>
+        </div>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Button variant="quiet" size="sm" asChild>
+            <Link to="/notifications">View notifications</Link>
+          </Button>
+          <Button variant="quiet" size="sm" asChild>
+            <Link to="/check-ins">Notification schedule</Link>
+          </Button>
         </div>
       </section>
 

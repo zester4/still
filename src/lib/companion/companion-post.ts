@@ -1,3 +1,4 @@
+import { auth } from "@/auth";
 import { crisisCompanionText, detectCrisis, outputLooksUnsafe } from "@/lib/companion/safety";
 import { classifyLocal, localCompanionReply } from "@/lib/companion/local";
 import {
@@ -8,12 +9,14 @@ import {
   type ChatTurn,
 } from "@/lib/companion/llm.server";
 import type { Intent, MemoryItem } from "@/lib/companion/types";
+import { rateLimit, searchMemoryVectors } from "@/lib/upstash/server";
 
 type Body = {
   message: string;
   name?: string;
   concerns?: string[];
   memories?: MemoryItem[];
+  memoryEnabled?: boolean;
   history?: ChatTurn[];
 };
 
@@ -69,8 +72,18 @@ export async function handleCompanionPost(request: Request): Promise<Response> {
   const message = (body.message ?? "").trim().slice(0, 2000);
   if (!message) return Response.json({ error: "Empty message" }, { status: 400 });
 
+  const session = await auth();
+  const userId = session?.user?.id;
+  const forwarded = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  const limit = await rateLimit(`companion:${userId ?? forwarded}`, 30, 60);
+  if (!limit.allowed) return Response.json({ error: "Take a breath and try again in a moment." }, { status: 429 });
+
   const name = body.name ?? "";
-  const memories = (body.memories ?? []).slice(0, 12);
+  const suppliedMemories = (body.memories ?? []).slice(0, 12);
+  const vectorMemories = userId && body.memoryEnabled !== false ? await searchMemoryVectors(userId, message) : [];
+  const memories = [...vectorMemories, ...suppliedMemories].filter(
+    (memory, index, all) => all.findIndex((item) => item.id === memory.id) === index,
+  ).slice(0, 12);
   const history: ChatTurn[] = [
     ...(body.history ?? []).slice(-16),
     { role: "user", content: message },

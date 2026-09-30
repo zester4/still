@@ -15,6 +15,8 @@ function snapshotOf(s: StillState) {
     memories: s.memories,
     letters: s.letters,
     checkIns: s.checkIns,
+    preferences: s.preferences,
+    notifications: s.notifications,
     pulses: s.pulses,
     createdAt: s.createdAt,
   };

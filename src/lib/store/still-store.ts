@@ -13,7 +13,9 @@ import type {
   MemoryItem,
   Mood,
   PulseValue,
+  StillPreferences,
   StillState,
+  NotificationItem,
 } from "@/lib/companion/types";
 
 const CHECKIN_MS: Record<CheckInFrequency, number> = {
@@ -31,6 +33,9 @@ type StillActions = {
     frequency: CheckInFrequency;
   }) => void;
   setName: (name: string) => void;
+  setPreferences: (patch: Partial<StillPreferences>) => void;
+  setNotifications: (items: NotificationItem[]) => void;
+  markNotificationsRead: (ids?: string[]) => void;
   ensureConversation: () => string;
   startNewPage: () => string;
   addMessage: (conversationId: string, message: Omit<ChatMessage, "id" | "createdAt"> & { id?: string }) => string;
@@ -67,6 +72,16 @@ const emptyState = (): Omit<StillState, "hydrated"> => ({
     lastAnsweredAt: null,
     entries: [],
   },
+  preferences: {
+    memoryEnabled: true,
+    notificationsEnabled: false,
+    emailNotificationsEnabled: false,
+    timezone: "UTC",
+    checkInTime: "20:00",
+    quietHoursStart: "22:00",
+    quietHoursEnd: "08:00",
+  },
+  notifications: [],
   pulses: [],
   createdAt: nowIso(),
 });
@@ -123,6 +138,17 @@ export const useStillStore = create<StillState & StillActions>()(
       },
 
       setName: (name) => set({ name: name.trim() }),
+
+      setPreferences: (patch) => set((s) => ({ preferences: { ...s.preferences, ...patch } })),
+
+      setNotifications: (items) => set({ notifications: items }),
+
+      markNotificationsRead: (ids) =>
+        set((s) => ({
+          notifications: s.notifications.map((item) =>
+            !ids?.length || ids.includes(item.id) ? { ...item, readAt: item.readAt ?? nowIso() } : item,
+          ),
+        })),
 
       ensureConversation: () => {
         const { activeConversationId, conversations } = get();
@@ -323,6 +349,8 @@ export const useStillStore = create<StillState & StillActions>()(
         set({
           ...emptyState(),
           ...snap,
+          preferences: { ...emptyState().preferences, ...snap.preferences },
+          notifications: snap.notifications ?? [],
           letters: snap.letters ?? [],
           hydrated: true,
         });

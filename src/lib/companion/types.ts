@@ -18,6 +18,28 @@ export type PulseValue = "yes" | "somewhat" | "not-really";
 
 export type CheckInFrequency = "daily" | "few" | "weekly";
 
+export type NotificationKind = "check-in" | "memory" | "reflection" | "account";
+
+export interface NotificationItem {
+  id: string;
+  kind: NotificationKind;
+  title: string;
+  body: string;
+  href: string;
+  readAt: string | null;
+  createdAt: string;
+}
+
+export interface StillPreferences {
+  memoryEnabled: boolean;
+  notificationsEnabled: boolean;
+  emailNotificationsEnabled: boolean;
+  timezone: string;
+  checkInTime: string;
+  quietHoursStart: string;
+  quietHoursEnd: string;
+}
+
 export interface MemoryItem {
   id: string;
   kind: MemoryKind;
@@ -83,6 +105,8 @@ export interface StillState {
     lastAnsweredAt: string | null;
     entries: CheckInEntry[];
   };
+  preferences: StillPreferences;
+  notifications: NotificationItem[];
   pulses: PulseEntry[];
   createdAt: string;
 }

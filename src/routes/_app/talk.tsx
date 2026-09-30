@@ -23,6 +23,7 @@ export function TalkPage() {
   const memories = useStillStore((s) => s.memories);
   const hydrated = useStillStore((s) => s.hydrated);
   const checkIns = useStillStore((s) => s.checkIns);
+  const memoryEnabled = useStillStore((s) => s.preferences.memoryEnabled);
   const ensureConversation = useStillStore((s) => s.ensureConversation);
   const addMessage = useStillStore((s) => s.addMessage);
   const updateMessage = useStillStore((s) => s.updateMessage);
@@ -92,6 +93,7 @@ export function TalkPage() {
           name: latest.name,
           concerns: latest.concerns,
           memories: latest.memories,
+          memoryEnabled,
           history,
         },
         (ev) => {

@@ -2,10 +2,11 @@
 
 import type { ReactNode } from "react";
 import { Link, useRouterState } from "@/lib/nav";
-import { BookOpen, Layers, Moon, MessageCircle, Notebook, PenLine, UserRound } from "lucide-react";
+import { Bell, BookOpen, Layers, Moon, MessageCircle, Notebook, PenLine, UserRound } from "lucide-react";
 import { StillWordmark } from "./still-mark";
 import { BackLink } from "./back-link";
 import { cn } from "@/lib/utils";
+import { useStillStore } from "@/lib/store/still-store";
 
 const MOBILE_NAV = [
   { to: "/talk", label: "Talk", icon: MessageCircle },
@@ -18,6 +19,7 @@ const DESKTOP_NAV = [
   { to: "/talk", label: "Talk", icon: MessageCircle },
   { to: "/pages", label: "Pages", icon: Notebook },
   { to: "/memory", label: "Memory", icon: BookOpen },
+  { to: "/notifications", label: "Notifications", icon: Bell },
   { to: "/quiet", label: "Quiet", icon: Moon },
   { to: "/letters", label: "Letters", icon: PenLine },
   { to: "/patterns", label: "Patterns", icon: Layers },
@@ -26,6 +28,7 @@ const DESKTOP_NAV = [
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const unread = useStillStore((s) => s.notifications.filter((item) => !item.readAt).length);
 
   return (
     <div className="still-vignette min-h-dvh">
@@ -48,7 +51,10 @@ export function AppShell({ children }: { children: ReactNode }) {
                   )}
                 >
                   <Icon className="size-4" strokeWidth={1.75} />
-                  {item.label}
+                  <span className="flex items-center gap-2">
+                    {item.label}
+                    {item.to === "/notifications" && unread ? <span className="size-1.5 rounded-full bg-accent" /> : null}
+                  </span>
                 </Link>
               );
             })}
@@ -72,6 +78,10 @@ export function AppShell({ children }: { children: ReactNode }) {
           <header className="flex items-center gap-1 border-b border-line px-2 py-2 md:hidden">
             <BackLink fallback="/talk" />
             <StillWordmark size="sm" />
+            <Link to="/notifications" className="relative ml-auto rounded-md p-2 text-muted hover:text-fg" aria-label="Notifications">
+              <Bell className="size-4" />
+              {unread ? <span className="absolute right-1.5 top-1.5 size-1.5 rounded-full bg-accent" /> : null}
+            </Link>
           </header>
           <main className="flex min-h-0 flex-1 flex-col">{children}</main>
         </div>

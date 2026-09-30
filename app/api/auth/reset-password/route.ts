@@ -1,9 +1,13 @@
 import { hash } from "bcryptjs";
 import { resetPassword } from "@/db/queries";
+import { rateLimit } from "@/lib/upstash/server";
 
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
+  const forwarded = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  const limit = await rateLimit(`password-reset-confirm:${forwarded}`, 12, 3600);
+  if (!limit.allowed) return Response.json({ error: "Too many attempts. Try again later." }, { status: 429 });
   let body: { token?: string; password?: string };
   try {
     body = (await request.json()) as { token?: string; password?: string };

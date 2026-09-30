@@ -16,6 +16,7 @@ export async function sendToCompanion(
     name: string;
     concerns: string[];
     memories: MemoryItem[];
+    memoryEnabled?: boolean;
     history: ChatTurn[];
   },
   onEvent: (ev: StreamEvent) => void,
