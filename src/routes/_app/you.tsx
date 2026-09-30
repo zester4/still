@@ -232,8 +232,8 @@ export function YouPage() {
           <DialogHeader>
             <DialogTitle>Erase everything?</DialogTitle>
             <DialogDescription>
-              Talks, memory, check-ins, and answers will be removed from this account and this device. This cannot be undone
-              unless you already exported.
+              Your account, talks, memory, check-ins, letters, and answers will be removed from this account and this device.
+              This cannot be undone unless you already exported.
             </DialogDescription>
           </DialogHeader>
           <div className="mt-4 flex justify-end gap-2">

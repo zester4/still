@@ -110,7 +110,7 @@ export function PrivacyPage() {
         <ul className="list-disc space-y-1 pl-5">
           <li>Edit or delete memory items one by one.</li>
           <li>Export a JSON copy from You.</li>
-          <li>Erase companion data from You (account copy and this device).</li>
+          <li>Erase your account and companion data from You (server copy and this device).</li>
           <li>Sign out.</li>
           <li>Stop using Still.</li>
         </ul>

@@ -9,7 +9,7 @@ export function TermsPage() {
       id="terms"
       kicker="Terms of use"
       title="Using Still."
-      lede="By making an account, or by staying in this space, you agree to these terms. If you do not, do not use Still."
+      lede="By checking the agreement box and making an account, you agree to these terms. If you do not, do not use Still."
     >
       <LegalSection title="1. What Still is">
         <p>
@@ -41,8 +41,8 @@ export function TermsPage() {
           without you.
         </p>
         <p>
-          You may export or erase the companion data kept with the account from You. Erasing data does
-          not always delete the account row itself. You may stop using Still at any time.
+          You may export or erase the account and companion data kept with the account from You. Erasing
+          is permanent and ends the account. You may stop using Still at any time.
         </p>
       </LegalSection>
 

@@ -16,12 +16,17 @@ export function SignupPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [agreed, setAgreed] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
+    if (!agreed) {
+      setError("Please agree to the Terms, Privacy, and Disclaimer before creating your space.");
+      return;
+    }
     setPending(true);
     const res = await fetch("/api/register", {
       method: "POST",
@@ -100,25 +105,36 @@ export function SignupPage() {
             />
             <p className="mt-1.5 text-xs text-subtle">At least eight characters.</p>
           </div>
+          <label htmlFor="agree-terms" className="flex items-start gap-3 text-xs leading-relaxed text-muted">
+            <input
+              id="agree-terms"
+              type="checkbox"
+              checked={agreed}
+              onChange={(e) => setAgreed(e.target.checked)}
+              required
+              className="mt-0.5 size-4 shrink-0 accent-[var(--color-accent)]"
+            />
+            <span>
+              I agree to the{" "}
+              <Link to="/terms" className="text-fg underline-offset-4 hover:underline">
+                Terms
+              </Link>
+              ,{" "}
+              <Link to="/privacy" className="text-fg underline-offset-4 hover:underline">
+                Privacy Policy
+              </Link>
+              , and{" "}
+              <Link to="/disclaimer" className="text-fg underline-offset-4 hover:underline">
+                Disclaimer
+              </Link>
+              .
+            </span>
+          </label>
           {error ? <p className="text-sm text-crisis">{error}</p> : null}
-          <Button type="submit" size="lg" disabled={pending}>
+          <Button type="submit" size="lg" disabled={pending || !agreed}>
             {pending ? "A moment…" : "Create this space"}
           </Button>
-          <p className="text-xs leading-relaxed text-subtle">
-            By creating this space you agree to the{" "}
-            <Link to="/terms" className="text-muted underline-offset-4 hover:text-fg hover:underline">
-              Terms
-            </Link>
-            ,{" "}
-            <Link to="/privacy" className="text-muted underline-offset-4 hover:text-fg hover:underline">
-              Privacy
-            </Link>
-            , and{" "}
-            <Link to="/disclaimer" className="text-muted underline-offset-4 hover:text-fg hover:underline">
-              Disclaimer
-            </Link>
-            . Still is not therapy.
-          </p>
+          <p className="text-xs leading-relaxed text-subtle">Still is not therapy.</p>
         </form>
 
         <p className="mt-8 text-sm text-muted">
