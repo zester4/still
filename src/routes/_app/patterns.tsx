@@ -1,10 +1,11 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Link } from "@/lib/nav";
 import { format } from "date-fns";
 import { BackLink } from "@/components/back-link";
 import { Button } from "@/components/ui/button";
-import { INTENT_LABEL, MOOD_LABEL, type Intent, type Mood } from "@/lib/companion/types";
+import { INTENT_LABEL, MOOD_LABEL, type Intent, type Mood, type WeeklyReflection } from "@/lib/companion/types";
 import { intentPattern, useStillStore } from "@/lib/store/still-store";
 import { cn } from "@/lib/utils";
 
@@ -27,6 +28,25 @@ export function PatternsPage() {
   const counts = countIntents(intents);
   const totalIntents = counts.reduce((n, [, v]) => n + v, 0);
   const talks = conversations.filter((c) => c.messages.some((m) => m.role === "user")).length;
+  const [reflection, setReflection] = useState<WeeklyReflection | null>(null);
+  const [reflectionPending, setReflectionPending] = useState(false);
+
+  useEffect(() => {
+    void fetch("/api/reflections")
+      .then((response) => (response.ok ? response.json() : null))
+      .then((data: { reflection?: WeeklyReflection } | null) => {
+        if (data?.reflection) setReflection(data.reflection);
+      })
+      .catch(() => undefined);
+  }, []);
+
+  async function refreshReflection() {
+    setReflectionPending(true);
+    const response = await fetch("/api/reflections", { method: "POST" });
+    const data = (await response.json().catch(() => ({}))) as { reflection?: WeeklyReflection };
+    if (data.reflection) setReflection(data.reflection);
+    setReflectionPending(false);
+  }
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 py-6 sm:py-8">
@@ -44,6 +64,26 @@ export function PatternsPage() {
           {talks === 1 ? "talk" : "talks"} with something said. {memories.length} remembered.
         </p>
       </section>
+
+      {reflection ? (
+        <section className="mt-4 rounded-xl bg-surface p-5 shadow-[var(--shadow-border)]">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted">Weekly reflection</p>
+              <p className="mt-2 text-sm leading-relaxed text-fg">{reflection.summary}</p>
+            </div>
+            <Button variant="ghost" size="sm" onClick={() => void refreshReflection()} disabled={reflectionPending}>
+              {reflectionPending ? "Refreshing…" : "Refresh"}
+            </Button>
+          </div>
+          {reflection.highlights.length ? (
+            <ul className="mt-4 space-y-2 border-t border-line pt-3">
+              {reflection.highlights.map((highlight) => <li key={highlight} className="text-sm leading-relaxed text-muted">{highlight}</li>)}
+            </ul>
+          ) : null}
+          <p className="mt-4 text-[11px] leading-relaxed text-subtle">A reflection is a record of what you shared, not a diagnosis or a score.</p>
+        </section>
+      ) : null}
 
       <section className="mt-4 rounded-xl bg-surface p-5 shadow-[var(--shadow-border)]">
         <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted">Check-ins</p>

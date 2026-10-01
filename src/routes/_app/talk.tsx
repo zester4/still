@@ -152,6 +152,16 @@ export function TalkPage() {
     const after = useStillStore.getState();
     const afterConvo = after.conversations.find((c) => c.id === conversationId);
     const users = userMessageCount(afterConvo);
+    if (afterConvo && users >= 2) {
+      void fetch("/api/summaries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          conversationId,
+          messages: afterConvo.messages.map((message) => ({ role: message.role, content: message.content })),
+        }),
+      });
+    }
     if (!gotCrisis && afterConvo && users >= 4 && !afterConvo.pulseAsked) {
       setPulseOpen(true);
     }

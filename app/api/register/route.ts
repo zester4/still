@@ -1,6 +1,7 @@
 import { hash } from "bcryptjs";
-import { createUser, findUserByEmail } from "@/db/queries";
+import { createEmailVerificationToken, createUser, findUserByEmail } from "@/db/queries";
 import { rateLimit } from "@/lib/upstash/server";
+import { sendVerificationEmail } from "@/lib/email/server";
 
 export const runtime = "nodejs";
 
@@ -39,5 +40,14 @@ export async function POST(request: Request) {
     passwordHash,
   });
 
-  return Response.json({ id: user.id, email: user.email, name: user.name });
+  let verificationSent = false;
+  try {
+    const token = await createEmailVerificationToken(user.id);
+    await sendVerificationEmail({ email: user.email, name: user.name, token });
+    verificationSent = true;
+  } catch (error) {
+    console.error("[auth] verification email failed", error);
+  }
+
+  return Response.json({ id: user.id, email: user.email, name: user.name, verificationSent });
 }

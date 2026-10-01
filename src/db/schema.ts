@@ -23,6 +23,8 @@ export const users = pgTable("users", {
   name: text("name").notNull().default(""),
   email: text("email").notNull(),
   passwordHash: text("password_hash").notNull(),
+  emailVerifiedAt: timestamp("email_verified_at", { withTimezone: true, mode: "string" }),
+  sessionVersion: integer("session_version").notNull().default(0),
   ...timestamps,
 }, (t) => [uniqueIndex("users_email_idx").on(t.email)]);
 
@@ -43,6 +45,26 @@ export const passwordResetTokens = pgTable(
   (t) => [
     uniqueIndex("password_reset_tokens_hash_idx").on(t.tokenHash),
     index("password_reset_tokens_user_id_idx").on(t.userId),
+  ],
+);
+
+export const emailVerificationTokens = pgTable(
+  "email_verification_tokens",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    tokenHash: text("token_hash").notNull(),
+    expiresAt: timestamp("expires_at", { withTimezone: true, mode: "string" }).notNull(),
+    usedAt: timestamp("used_at", { withTimezone: true, mode: "string" }),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("email_verification_tokens_hash_idx").on(t.tokenHash),
+    index("email_verification_tokens_user_id_idx").on(t.userId),
   ],
 );
 
@@ -206,4 +228,53 @@ export const checkInSchedules = pgTable(
       .defaultNow(),
   },
   (t) => [uniqueIndex("check_in_schedules_user_id_idx").on(t.userId)],
+);
+
+export const conversationSummaries = pgTable(
+  "conversation_summaries",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    conversationId: text("conversation_id")
+      .notNull()
+      .references(() => conversations.id, { onDelete: "cascade" }),
+    summary: text("summary").notNull(),
+    highlights: jsonb("highlights").$type<string[]>().notNull().default([]),
+    messageCount: integer("message_count").notNull().default(0),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("conversation_summaries_conversation_id_idx").on(t.conversationId),
+    index("conversation_summaries_user_id_idx").on(t.userId),
+  ],
+);
+
+export const weeklyReflections = pgTable(
+  "weekly_reflections",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    weekStart: text("week_start").notNull(),
+    summary: text("summary").notNull(),
+    highlights: jsonb("highlights").$type<string[]>().notNull().default([]),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("weekly_reflections_user_week_idx").on(t.userId, t.weekStart),
+    index("weekly_reflections_user_id_idx").on(t.userId),
+  ],
 );

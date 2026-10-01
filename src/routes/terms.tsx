@@ -49,8 +49,9 @@ export function TermsPage() {
       <LegalSection title="4. Your words">
         <p>
           You keep whatever rights you have in what you type. You give Still permission to process those
-          words so the product can work: to reply, to store memory you allow, to detect crisis language,
-          and to operate the account.
+          words so the product can work: to reply, to store memory you allow, to create private
+          conversation summaries and weekly reflections, to detect crisis language, and to operate the
+          account.
         </p>
         <p>
           Do not use Still to harm someone, to break the law, to try to break the product, or to send

@@ -1,7 +1,7 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { compare } from "bcryptjs";
-import { findUserByEmail } from "@/db/queries";
+import { findUserByEmail, findUserById } from "@/db/queries";
 
 const configuredSecret = process.env.AUTH_SECRET?.trim() || process.env.NEXTAUTH_SECRET?.trim();
 if (process.env.VERCEL === "1" && !configuredSecret) {
@@ -33,7 +33,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           if (!user) return null;
           const ok = await compare(password, user.passwordHash);
           if (!ok) return null;
-          return { id: user.id, email: user.email, name: user.name };
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            emailConfirmed: Boolean(user.emailVerifiedAt),
+            sessionVersion: user.sessionVersion,
+          };
         } catch (error) {
           console.error("[auth] credential lookup failed", error);
           return null;
@@ -51,7 +57,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
   callbacks: {
     async jwt({ token, user }) {
-      if (user?.id) token.sub = user.id;
+      if (user?.id) {
+        const current = await findUserById(user.id);
+        token.sub = user.id;
+        token.sessionVersion = current?.sessionVersion ?? 0;
+        token.emailConfirmed = Boolean(current?.emailVerifiedAt);
+      } else if (token.sub) {
+        const current = await findUserById(token.sub);
+        if (!current || current.sessionVersion !== (token.sessionVersion ?? 0)) return {};
+        token.email = current.email;
+        token.name = current.name;
+        token.emailConfirmed = Boolean(current.emailVerifiedAt);
+      }
       if (user?.email) token.email = user.email;
       if (user?.name) token.name = user.name;
       return token;
@@ -61,6 +78,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.id = token.sub ?? "";
         session.user.email = token.email ?? session.user.email;
         session.user.name = token.name ?? session.user.name;
+        session.user.emailConfirmed = Boolean(token.emailConfirmed);
       }
       return session;
     },

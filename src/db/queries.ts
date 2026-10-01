@@ -1,4 +1,4 @@
-import { and, eq, gt, isNull } from "drizzle-orm";
+import { and, eq, gt, isNull, sql } from "drizzle-orm";
 import { createHash, randomBytes } from "node:crypto";
 import { getDb } from "./config";
 import {
@@ -13,6 +13,9 @@ import {
   passwordResetTokens,
   users,
   checkInSchedules,
+  conversationSummaries,
+  emailVerificationTokens,
+  weeklyReflections,
 } from "./schema";
 import type {
   CheckInEntry,
@@ -22,6 +25,8 @@ import type {
   MemoryItem,
   PulseEntry,
   StillState,
+  ConversationSummary,
+  WeeklyReflection,
 } from "@/lib/companion/types";
 import type {
   NotificationItem,
@@ -36,6 +41,8 @@ export type UserRow = {
   name: string;
   email: string;
   passwordHash: string;
+  emailVerifiedAt: string | null;
+  sessionVersion: number;
 };
 
 export async function createUser(input: {
@@ -65,6 +72,8 @@ export async function createUser(input: {
     name: user.name,
     email: user.email,
     passwordHash: user.passwordHash,
+    emailVerifiedAt: user.emailVerifiedAt,
+    sessionVersion: user.sessionVersion,
   };
 }
 
@@ -82,7 +91,65 @@ export async function findUserByEmail(email: string): Promise<UserRow | null> {
     name: user.name,
     email: user.email,
     passwordHash: user.passwordHash,
+    emailVerifiedAt: user.emailVerifiedAt,
+    sessionVersion: user.sessionVersion,
   };
+}
+
+export async function createEmailVerificationToken(userId: string) {
+  const db = await getDb();
+  const token = randomBytes(32).toString("hex");
+  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+  await db.delete(emailVerificationTokens).where(eq(emailVerificationTokens.userId, userId));
+  await db.insert(emailVerificationTokens).values({
+    id: crypto.randomUUID(),
+    userId,
+    tokenHash: hashResetToken(token),
+    expiresAt,
+  });
+  return token;
+}
+
+export async function verifyEmailToken(token: string): Promise<boolean> {
+  const db = await getDb();
+  const now = new Date().toISOString();
+  const [row] = await db
+    .select()
+    .from(emailVerificationTokens)
+    .where(
+      and(
+        eq(emailVerificationTokens.tokenHash, hashResetToken(token)),
+        isNull(emailVerificationTokens.usedAt),
+        gt(emailVerificationTokens.expiresAt, now),
+      ),
+    )
+    .limit(1);
+  if (!row) return false;
+  await db
+    .update(emailVerificationTokens)
+    .set({ usedAt: now })
+    .where(and(eq(emailVerificationTokens.id, row.id), isNull(emailVerificationTokens.usedAt)));
+  const [claimed] = await db
+    .select({ id: emailVerificationTokens.id })
+    .from(emailVerificationTokens)
+    .where(and(eq(emailVerificationTokens.id, row.id), eq(emailVerificationTokens.usedAt, now)))
+    .limit(1);
+  if (!claimed) return false;
+  await db.update(users).set({ emailVerifiedAt: now }).where(eq(users.id, row.userId));
+  await db.delete(emailVerificationTokens).where(eq(emailVerificationTokens.userId, row.userId));
+  return true;
+}
+
+export async function updatePassword(userId: string, passwordHash: string) {
+  const db = await getDb();
+  await db.update(users).set({ passwordHash, updatedAt: new Date().toISOString() }).where(eq(users.id, userId));
+}
+
+export async function revokeAllSessions(userId: string) {
+  const db = await getDb();
+  const [user] = await db.select({ sessionVersion: users.sessionVersion }).from(users).where(eq(users.id, userId)).limit(1);
+  if (!user) return;
+  await db.update(users).set({ sessionVersion: user.sessionVersion + 1, updatedAt: new Date().toISOString() }).where(eq(users.id, userId));
 }
 
 export async function findUserById(id: string): Promise<UserRow | null> {
@@ -95,6 +162,8 @@ export async function findUserById(id: string): Promise<UserRow | null> {
     name: user.name,
     email: user.email,
     passwordHash: user.passwordHash,
+    emailVerifiedAt: user.emailVerifiedAt,
+    sessionVersion: user.sessionVersion,
   };
 }
 
@@ -148,7 +217,10 @@ export async function resetPassword(token: string, passwordHash: string): Promis
     .limit(1);
   if (!claimed) return false;
 
-  await db.update(users).set({ passwordHash, updatedAt: now }).where(eq(users.id, row.userId));
+  await db
+    .update(users)
+    .set({ passwordHash, sessionVersion: sql`${users.sessionVersion} + 1`, updatedAt: now })
+    .where(eq(users.id, row.userId));
   await db.delete(passwordResetTokens).where(eq(passwordResetTokens.userId, row.userId));
   return true;
 }
@@ -563,6 +635,99 @@ export async function saveCheckInSchedule(input: {
 export async function markCheckInSent(userId: string, at = new Date().toISOString()) {
   const db = await getDb();
   await db.update(checkInSchedules).set({ lastSentAt: at, updatedAt: at }).where(eq(checkInSchedules.userId, userId));
+}
+
+export async function saveConversationSummary(input: {
+  userId: string;
+  conversationId: string;
+  summary: string;
+  highlights: string[];
+  messageCount: number;
+}): Promise<ConversationSummary> {
+  const db = await getDb();
+  const now = new Date().toISOString();
+  const [row] = await db
+    .insert(conversationSummaries)
+    .values({ id: crypto.randomUUID(), ...input, updatedAt: now })
+    .onConflictDoUpdate({
+      target: conversationSummaries.conversationId,
+      set: {
+        summary: input.summary,
+        highlights: input.highlights,
+        messageCount: input.messageCount,
+        updatedAt: now,
+      },
+    })
+    .returning();
+  return {
+    id: row.id,
+    conversationId: row.conversationId,
+    summary: row.summary,
+    highlights: row.highlights ?? [],
+    messageCount: row.messageCount,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
+  };
+}
+
+export async function listConversationSummaries(userId: string): Promise<ConversationSummary[]> {
+  const db = await getDb();
+  const rows = await db.select().from(conversationSummaries).where(eq(conversationSummaries.userId, userId));
+  return rows
+    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+    .map((row) => ({
+      id: row.id,
+      conversationId: row.conversationId,
+      summary: row.summary,
+      highlights: row.highlights ?? [],
+      messageCount: row.messageCount,
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
+    }));
+}
+
+export async function getWeeklyReflection(userId: string, weekStart: string): Promise<WeeklyReflection | null> {
+  const db = await getDb();
+  const [row] = await db
+    .select()
+    .from(weeklyReflections)
+    .where(and(eq(weeklyReflections.userId, userId), eq(weeklyReflections.weekStart, weekStart)))
+    .limit(1);
+  if (!row) return null;
+  return {
+    id: row.id,
+    weekStart: row.weekStart,
+    summary: row.summary,
+    highlights: row.highlights ?? [],
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
+  };
+}
+
+export async function saveWeeklyReflection(input: {
+  userId: string;
+  weekStart: string;
+  summary: string;
+  highlights: string[];
+}): Promise<WeeklyReflection> {
+  const db = await getDb();
+  const now = new Date().toISOString();
+  const [row] = await db
+    .insert(weeklyReflections)
+    .values({ id: crypto.randomUUID(), ...input, updatedAt: now })
+    .onConflictDoUpdate({
+      target: [weeklyReflections.userId, weeklyReflections.weekStart],
+      set: { summary: input.summary, highlights: input.highlights, updatedAt: now },
+    })
+    .returning();
+  return {
+    id: row.id,
+    weekStart: row.weekStart,
+    summary: row.summary,
+    highlights: row.highlights ?? [],
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
+  };
 }
 
 export async function eraseUserData(userId: string): Promise<void> {

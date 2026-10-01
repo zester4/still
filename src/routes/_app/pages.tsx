@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useNavigate } from "@/lib/nav";
 import { formatDistanceToNow } from "date-fns";
 import { BackLink } from "@/components/back-link";
@@ -19,6 +20,17 @@ export function PagesPage() {
   const openConversation = useStillStore((s) => s.openConversation);
   const startNewPage = useStillStore((s) => s.startNewPage);
   const navigate = useNavigate();
+  const [summaries, setSummaries] = useState<Record<string, { summary: string; highlights: string[] }>>({});
+
+  useEffect(() => {
+    void fetch("/api/summaries")
+      .then((response) => (response.ok ? response.json() : null))
+      .then((data: { summaries?: { conversationId: string; summary: string; highlights: string[] }[] } | null) => {
+        if (!data?.summaries) return;
+        setSummaries(Object.fromEntries(data.summaries.map((item) => [item.conversationId, item])));
+      })
+      .catch(() => undefined);
+  }, []);
 
   function open(id: string) {
     openConversation(id);
@@ -67,6 +79,9 @@ export function PagesPage() {
                     </p>
                   </div>
                   <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-muted">{preview(c)}</p>
+                  {summaries[c.id] ? (
+                    <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-subtle">{summaries[c.id].summary}</p>
+                  ) : null}
                 </button>
               </li>
             );

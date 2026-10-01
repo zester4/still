@@ -3,6 +3,7 @@ import { render } from "react-email";
 import { createNotification, findUserById, getCheckInSchedule, getPreferences, markCheckInSent } from "@/db/queries";
 import { appUrl, claimOnce, verifyQStash } from "@/lib/upstash/server";
 import { CheckInEmail } from "@/components/email/check-in";
+import { getOrCreateWeeklyReflection } from "@/lib/companion/reflections.server";
 
 export const runtime = "nodejs";
 
@@ -99,5 +100,8 @@ export async function POST(request: Request) {
     }
   }
   await markCheckInSent(body.userId);
+  await getOrCreateWeeklyReflection(body.userId).catch((error) => {
+    console.error("[reflections] weekly reflection failed", error);
+  });
   return Response.json({ ok: true });
 }

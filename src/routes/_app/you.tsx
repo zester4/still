@@ -1,11 +1,12 @@
 "use client";
 
 import { Link } from "@/lib/nav";
-import { useMemo, useState } from "react";
+import { useMemo, useState, type FormEvent } from "react";
 import { signOut, useSession } from "next-auth/react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/password-input";
 import { Label } from "@/components/ui/label";
 import {
   Dialog,
@@ -38,6 +39,11 @@ export function YouPage() {
   const [draftName, setDraftName] = useState(name);
   const [erasing, setErasing] = useState(false);
   const [eraseError, setEraseError] = useState<string | null>(null);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [passwordStatus, setPasswordStatus] = useState<string | null>(null);
+  const [securityPending, setSecurityPending] = useState(false);
+  const [verificationStatus, setVerificationStatus] = useState<string | null>(null);
 
   const pattern = useMemo(() => summarizeIntents(intentPattern(useStillStore.getState())), [conversations]);
 
@@ -62,6 +68,33 @@ export function YouPage() {
     a.download = "still-data.json";
     a.click();
     URL.revokeObjectURL(url);
+  }
+
+  async function changePassword(event: FormEvent) {
+    event.preventDefault();
+    setSecurityPending(true);
+    setPasswordStatus(null);
+    const response = await fetch("/api/auth/change-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ currentPassword, newPassword }),
+    });
+    const data = (await response.json().catch(() => ({}))) as { error?: string };
+    setSecurityPending(false);
+    if (!response.ok) {
+      setPasswordStatus(data.error ?? "The password could not be changed.");
+      return;
+    }
+    setCurrentPassword("");
+    setNewPassword("");
+    setPasswordStatus("Password changed.");
+  }
+
+  async function resendVerification() {
+    setVerificationStatus(null);
+    const response = await fetch("/api/auth/resend-verification", { method: "POST" });
+    const data = (await response.json().catch(() => ({}))) as { error?: string };
+    setVerificationStatus(response.ok ? "A fresh confirmation link is on its way." : data.error ?? "Could not send the email.");
   }
 
   return (
@@ -139,6 +172,18 @@ export function YouPage() {
       <section className="mt-4 rounded-xl bg-surface p-5 shadow-[var(--shadow-border)]">
         <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted">Account</p>
         <p className="mt-2 text-sm text-fg">{session?.user?.email}</p>
+        <div className="mt-3 rounded-lg bg-surface-2 px-3 py-3">
+          <p className="text-sm font-medium">Email confirmation</p>
+          <p className="mt-1 text-xs text-muted">
+            {session?.user?.emailConfirmed ? "Confirmed. Your account email is verified." : "Not confirmed yet. Confirming your email helps keep your space secure."}
+          </p>
+          {!session?.user?.emailConfirmed ? (
+            <Button variant="quiet" size="sm" className="mt-3" onClick={() => void resendVerification()}>
+              Send confirmation email
+            </Button>
+          ) : null}
+          {verificationStatus ? <p className="mt-2 text-xs text-muted">{verificationStatus}</p> : null}
+        </div>
         <div className="mt-3">
           <Button
             variant="quiet"
@@ -150,6 +195,38 @@ export function YouPage() {
             Sign out
           </Button>
         </div>
+      </section>
+
+      <section className="mt-4 rounded-xl bg-surface p-5 shadow-[var(--shadow-border)]">
+        <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted">Security</p>
+        <h2 className="font-display mt-2 text-2xl font-medium tracking-tight">Keep your key yours.</h2>
+        <form className="mt-4 grid gap-3" onSubmit={(event) => void changePassword(event)}>
+          <div>
+            <Label htmlFor="current-password">Current password</Label>
+            <PasswordInput id="current-password" className="mt-1.5" autoComplete="current-password" value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)} required />
+          </div>
+          <div>
+            <Label htmlFor="settings-new-password">New password</Label>
+            <PasswordInput id="settings-new-password" className="mt-1.5" autoComplete="new-password" minLength={8} value={newPassword} onChange={(event) => setNewPassword(event.target.value)} required />
+          </div>
+          {passwordStatus ? <p className="text-sm text-muted">{passwordStatus}</p> : null}
+          <div className="flex flex-wrap gap-2">
+            <Button type="submit" variant="quiet" disabled={securityPending}>
+              {securityPending ? "Changing…" : "Change password"}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={async () => {
+                const response = await fetch("/api/auth/sessions", { method: "DELETE" });
+                if (response.ok) await signOut({ callbackUrl: "/" });
+              }}
+            >
+              Sign out all sessions
+            </Button>
+          </div>
+        </form>
+        <p className="mt-3 text-xs leading-relaxed text-subtle">Signing out all sessions ends access on every device, including this one.</p>
       </section>
 
       <section className="mt-4 rounded-xl bg-surface p-5 shadow-[var(--shadow-border)]">

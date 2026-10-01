@@ -33,6 +33,7 @@ export function PrivacyPage() {
           <li>Letters you write and do not have to send.</li>
           <li>Optional check-ins, moods, and “did you feel understood” answers.</li>
           <li>Onboarding choices, such as concerns you named.</li>
+          <li>Conversation summaries and weekly reflections generated from the talks and check-ins you keep.</li>
         </ul>
         <p>
           The product also keeps a copy of that companion data in this browser (local storage) so the
@@ -51,6 +52,7 @@ export function PrivacyPage() {
           <li>Run your account and keep you signed in.</li>
           <li>Generate a reply, and remember only what you have allowed the product to keep.</li>
           <li>Show check-ins you opted into, and patterns you can look at.</li>
+          <li>Prepare private conversation summaries and weekly reflections for your account.</li>
           <li>Detect language that looks like a crisis, so the hard-coded safety path can run.</li>
           <li>Let you export or erase.</li>
         </ul>

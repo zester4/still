@@ -67,6 +67,25 @@ export interface Conversation {
   pulseAsked?: boolean;
 }
 
+export interface ConversationSummary {
+  id: string;
+  conversationId: string;
+  summary: string;
+  highlights: string[];
+  messageCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface WeeklyReflection {
+  id: string;
+  weekStart: string;
+  summary: string;
+  highlights: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface CheckInEntry {
   id: string;
   at: string;

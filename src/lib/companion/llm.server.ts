@@ -185,6 +185,41 @@ export async function extractMemories(input: {
   }
 }
 
+export async function summarizeConversation(input: { turns: ChatTurn[] }) {
+  const userTurns = input.turns.filter((turn) => turn.role === "user").map((turn) => turn.content.trim()).filter(Boolean);
+  const fallback = {
+    summary:
+      userTurns.length === 0
+        ? "A quiet page with nothing written yet."
+        : `You brought up ${userTurns[0].replace(/\s+/g, " ").slice(0, 180)}${userTurns[0].length > 180 ? "…" : ""}`,
+    highlights: userTurns.slice(-3).map((turn) => turn.replace(/\s+/g, " ").slice(0, 140)),
+  };
+  if (!aiAvailable() || userTurns.length === 0) return fallback;
+  try {
+    const res = await llmChat({
+      temperature: 0.2,
+      max_tokens: 280,
+      messages: [
+        {
+          role: "system",
+          content:
+            'Summarize a private conversation for the person who had it. Be warm, neutral, and concrete. Do not diagnose, label, or give advice. Return JSON only: {"summary":"one or two sentences","highlights":["up to three short phrases"]}. Never include crisis instructions or claims about mental health.',
+        },
+        { role: "user", content: input.turns.slice(-24).map((turn) => `${turn.role}: ${turn.content.slice(0, 1800)}`).join("\n") },
+      ],
+    });
+    const body = (await res.json()) as { choices?: { message?: { content?: string } }[] };
+    const raw = body.choices?.[0]?.message?.content ?? "";
+    const parsed = JSON.parse(raw.replace(/```json|```/g, "").trim()) as { summary?: string; highlights?: string[] };
+    const summary = parsed.summary?.trim().slice(0, 500);
+    const highlights = (parsed.highlights ?? []).filter((item): item is string => typeof item === "string").map((item) => item.trim().slice(0, 180)).filter(Boolean).slice(0, 3);
+    if (!summary || outputLooksUnsafe(`${summary} ${highlights.join(" ")}`)) return fallback;
+    return { summary, highlights };
+  } catch {
+    return fallback;
+  }
+}
+
 export function sseEvent(data: unknown) {
   return `data: ${JSON.stringify(data)}\n\n`;
 }

@@ -27,6 +27,8 @@ npm-debug.log*
 screenshots/
 artifacts/
 attachments/
+test-results/
+playwright-report/
 .project_id
 .node_modules.lock
 

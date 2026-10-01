@@ -20,6 +20,11 @@ In some places, including Illinois, using AI as therapy is restricted. This app 
 - **Legal** — terms, privacy, disclaimer (not therapy), and safety
 - **Safety** — crisis language takes a hard-coded path (presence + real helplines), not a free-generated reply
 
+Conversation summaries are generated after a talk has enough messages, and a weekly reflection is
+kept in Patterns and refreshed when the week changes. Accounts also support email confirmation,
+password changes, password recovery, and signing out every session. Summaries and reflections can
+be erased with the account from You.
+
 Data is stored per account (Neon + Drizzle). A copy can also live on this device. Memory is user-controlled: Still can suggest a memory, but it waits for approval before keeping it.
 
 ## Stack
@@ -52,3 +57,17 @@ If this is a hard moment, reach a person:
 - [IASP local helplines](https://www.iasp.info/suicidalthoughts/)
 - US: call or text **988**
 - Crisis Text Line: text **HOME** to **741741**
+
+### Checks
+
+```bash
+npm test
+npm run typecheck
+npm run lint
+npm run build:dev
+npx playwright install chromium   # once on a new machine
+npm run test:e2e
+```
+
+The browser suite starts a production preview automatically. Set `PLAYWRIGHT_BASE_URL` when checking
+an already-deployed instance instead.
