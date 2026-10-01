@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, type FormEvent, type KeyboardEvent } from "react";
+import { type FormEvent, type KeyboardEvent } from "react";
 import { ArrowUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -18,15 +18,6 @@ export function Composer({
   disabled?: boolean;
   placeholder?: string;
 }) {
-  const ref = useRef<HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    el.style.height = "0px";
-    el.style.height = `${Math.min(el.scrollHeight, 160)}px`;
-  }, [value]);
-
   function submit(e?: FormEvent) {
     e?.preventDefault();
     if (!value.trim() || disabled) return;
@@ -52,7 +43,6 @@ export function Composer({
         )}
       >
         <textarea
-          ref={ref}
           rows={1}
           value={value}
           onChange={(e) => onChange(e.target.value.slice(0, 2000))}
@@ -60,7 +50,7 @@ export function Composer({
           placeholder={placeholder}
           disabled={disabled}
           aria-label="Message"
-          className="max-h-40 min-h-11 flex-1 resize-none bg-transparent py-2.5 text-[0.95rem] leading-relaxed text-fg placeholder:text-subtle focus-visible:outline-none disabled:opacity-60"
+          className="h-11 min-h-11 flex-1 resize-none overflow-y-auto bg-transparent py-2.5 text-[0.95rem] leading-relaxed text-fg placeholder:text-subtle focus-visible:outline-none disabled:opacity-60"
         />
         <Button
           type="submit"

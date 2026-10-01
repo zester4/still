@@ -226,7 +226,7 @@ export function TalkPage() {
         />
       ) : null}
 
-      <div className="min-h-0 flex-1 overflow-y-auto">
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
         {empty && !listening ? (
           <div className="mx-auto flex max-w-lg flex-col items-start px-6 py-16">
             <p className="font-display text-2xl font-medium tracking-tight text-fg sm:text-3xl">

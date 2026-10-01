@@ -31,8 +31,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const unread = useStillStore((s) => s.notifications.filter((item) => !item.readAt).length);
 
   return (
-    <div className="still-vignette min-h-dvh">
-      <div className="mx-auto flex min-h-dvh w-full max-w-6xl">
+    <div className="still-vignette h-dvh max-h-dvh overflow-hidden">
+      <div className="mx-auto flex h-full max-h-dvh w-full max-w-6xl">
         <aside className="sticky top-0 hidden h-dvh w-56 shrink-0 flex-col border-r border-line px-5 py-8 md:flex">
           <Link to="/talk" className="mb-10">
             <StillWordmark />
@@ -74,7 +74,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </aside>
 
-        <div className="flex min-h-dvh min-w-0 flex-1 flex-col pb-[5rem] md:pb-0">
+        <div className="flex h-full min-h-0 min-w-0 flex-1 flex-col pb-[5rem] md:pb-0">
           <header className="flex items-center gap-1 border-b border-line px-2 py-2 md:hidden">
             <BackLink fallback="/talk" />
             <StillWordmark size="sm" />
@@ -83,7 +83,9 @@ export function AppShell({ children }: { children: ReactNode }) {
               {unread ? <span className="absolute right-1.5 top-1.5 size-1.5 rounded-full bg-accent" /> : null}
             </Link>
           </header>
-          <main className="flex min-h-0 flex-1 flex-col">{children}</main>
+          <main className={cn("flex min-h-0 flex-1 flex-col overflow-y-auto", pathname === "/talk" && "overflow-hidden")}>
+            {children}
+          </main>
         </div>
       </div>
 
