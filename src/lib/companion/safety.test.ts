@@ -28,4 +28,6 @@ test("answers privacy concerns with the product's actual data boundary", () => {
   assert.match(copy, /not public or visible to other users/i);
   assert.match(copy, /not end-to-end encrypted/i);
   assert.match(copy, /export, or erase/i);
+  assert.match(privacyCompanionText({ zeroDataRetention: true }), /zero data retention/i);
+  assert.doesNotMatch(privacyCompanionText({ zeroDataRetention: true }), /retention and training rules depend/i);
 });

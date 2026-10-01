@@ -8,6 +8,9 @@ export function detectPrivacyQuestion(text: string): boolean {
   return PRIVACY_PATTERNS.some((pattern) => pattern.test(text));
 }
 
-export function privacyCompanionText(): string {
-  return "I hear why that feels unsettling. Here is the straight answer: what you share in Still is tied to your account and is not public or visible to other users. Still stores conversations so you can return to them, and when an external AI provider is configured, the current conversation is sent there to generate a reply. Still is not end-to-end encrypted, so the service operator and provider could technically access text they store or process. Still does not contact your friends or tell other users what you wrote, and you can stop, export, or erase your account from You. You never owe me more details.";
+export function privacyCompanionText(options: { zeroDataRetention?: boolean } = {}): string {
+  const providerLine = options.zeroDataRetention
+    ? "The configured AI provider is set to zero data retention and does not use your content to train models; it still receives the current conversation briefly to generate a reply."
+    : "When an external AI provider is configured, the current conversation is sent there to generate a reply, and its retention and training rules depend on that provider.";
+  return `I hear why that feels unsettling. Here is the straight answer: what you share in Still is tied to your account and is not public or visible to other users. Still stores conversations so you can return to them. ${providerLine} Still is not end-to-end encrypted, so the service operator can technically access account data they host. Still does not contact your friends or tell other users what you wrote, and you can stop, export, or erase your account from You. You never owe me more details.`;
 }

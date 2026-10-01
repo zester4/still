@@ -69,6 +69,12 @@ export function PrivacyPage() {
           not leave the instance for generation.
         </p>
         <p>
+          If the operator enables <code>AI_ZERO_DATA_RETENTION=true</code> and restricts routing to
+          compatible providers, the configured AI route is intended not to retain prompts or use them
+          for training. The current message still travels to the provider briefly to generate a reply;
+          this is not end-to-end encryption.
+        </p>
+        <p>
           <strong className="font-medium text-fg">The database.</strong> When a database URL is set,
           account and companion data are stored in Postgres (Neon in production). The operator of the
           instance, and the database host, can technically access rows. Queries are written to load

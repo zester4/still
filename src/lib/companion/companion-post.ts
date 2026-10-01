@@ -47,6 +47,7 @@ function localStream(input: {
   history: ChatTurn[];
   crisis?: boolean;
   privacy?: boolean;
+  privacyZeroDataRetention?: boolean;
 }) {
   if (input.crisis || input.intent === "escalating-risk") {
     return textStream([
@@ -58,7 +59,7 @@ function localStream(input: {
   if (input.privacy) {
     return textStream([
       { type: "intent", intent: input.intent },
-      { type: "delta", text: privacyCompanionText() },
+      { type: "delta", text: privacyCompanionText({ zeroDataRetention: input.privacyZeroDataRetention }) },
       { type: "done" },
     ]);
   }
@@ -91,7 +92,15 @@ export async function handleCompanionPost(request: Request): Promise<Response> {
   const privacyQuestion = detectPrivacyQuestion(message);
   if (privacyQuestion && !detectCrisis(message)) {
     const intent = classifyLocal(message);
-    return new Response(localStream({ message, name, memories: [], history: [], intent, privacy: true }), {
+    return new Response(localStream({
+      message,
+      name,
+      memories: [],
+      history: [],
+      intent,
+      privacy: true,
+      privacyZeroDataRetention: process.env.AI_ZERO_DATA_RETENTION?.trim().toLowerCase() === "true",
+    }), {
       headers: sseHeaders,
     });
   }
