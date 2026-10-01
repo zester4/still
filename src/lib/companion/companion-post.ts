@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { crisisCompanionText, detectCrisis, outputLooksUnsafe } from "@/lib/companion/safety";
 import { classifyLocal, localCompanionReply } from "@/lib/companion/local";
+import { detectPrivacyQuestion, privacyCompanionText } from "@/lib/companion/privacy";
 import {
   aiAvailable,
   classifyIntent,
@@ -45,11 +46,19 @@ function localStream(input: {
   memories: MemoryItem[];
   history: ChatTurn[];
   crisis?: boolean;
+  privacy?: boolean;
 }) {
   if (input.crisis || input.intent === "escalating-risk") {
     return textStream([
       { type: "intent", intent: "escalating-risk" },
       { type: "crisis", text: crisisCompanionText() },
+      { type: "done" },
+    ]);
+  }
+  if (input.privacy) {
+    return textStream([
+      { type: "intent", intent: input.intent },
+      { type: "delta", text: privacyCompanionText() },
       { type: "done" },
     ]);
   }
@@ -79,6 +88,13 @@ export async function handleCompanionPost(request: Request): Promise<Response> {
   if (!limit.allowed) return Response.json({ error: "Take a breath and try again in a moment." }, { status: 429 });
 
   const name = body.name ?? "";
+  const privacyQuestion = detectPrivacyQuestion(message);
+  if (privacyQuestion && !detectCrisis(message)) {
+    const intent = classifyLocal(message);
+    return new Response(localStream({ message, name, memories: [], history: [], intent, privacy: true }), {
+      headers: sseHeaders,
+    });
+  }
   const suppliedMemories = (body.memories ?? []).slice(0, 12);
   const vectorMemories = userId && body.memoryEnabled !== false ? await searchMemoryVectors(userId, message) : [];
   const memories = [...vectorMemories, ...suppliedMemories].filter(
