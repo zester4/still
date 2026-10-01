@@ -11,11 +11,7 @@ import { Button } from "@/components/ui/button";
 import { sendToCompanion } from "@/lib/companion/send";
 import type { Intent } from "@/lib/companion/types";
 import { uid } from "@/lib/utils";
-import {
-  checkInIsDue,
-  useStillStore,
-  userMessageCount,
-} from "@/lib/store/still-store";
+import { checkInIsDue, useStillStore, userMessageCount } from "@/lib/store/still-store";
 
 export function TalkPage() {
   const conversations = useStillStore((s) => s.conversations);
@@ -46,10 +42,18 @@ export function TalkPage() {
     if (hydrated && checkInIsDue(useStillStore.getState())) {
       setCheckInOpen(true);
     }
-  }, [hydrated, checkIns.enabled, checkIns.frequency, checkIns.lastShownAt, checkIns.lastAnsweredAt]);
+  }, [
+    hydrated,
+    checkIns.enabled,
+    checkIns.frequency,
+    checkIns.lastShownAt,
+    checkIns.lastAnsweredAt,
+  ]);
 
   const continuity = useMemo(() => {
-    const prior = conversations.filter((c) => c.id !== convo?.id && c.messages.some((m) => m.role === "user"));
+    const prior = conversations.filter(
+      (c) => c.id !== convo?.id && c.messages.some((m) => m.role === "user"),
+    );
     if (prior.length === 0) return null;
     return memories[0]?.title ?? null;
   }, [conversations, convo, memories]);
@@ -158,7 +162,10 @@ export function TalkPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           conversationId,
-          messages: afterConvo.messages.map((message) => ({ role: message.role, content: message.content })),
+          messages: afterConvo.messages.map((message) => ({
+            role: message.role,
+            content: message.content,
+          })),
         }),
       });
     }
@@ -172,11 +179,11 @@ export function TalkPage() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="flex items-center justify-between gap-2 border-b border-line px-2 py-2 sm:gap-3 sm:px-3 sm:py-3">
+      <div className="flex min-h-12 items-center justify-between gap-2 border-b border-line px-3 py-2 sm:gap-3 sm:px-3 sm:py-3">
         <div className="flex min-w-0 items-center gap-1">
           <BackLink fallback="/" className="hidden md:inline-flex" />
           <div className="min-w-0 px-1 sm:px-1.5">
-            <p className="text-sm text-fg">Here with you</p>
+            <p className="truncate text-[0.8125rem] text-fg sm:text-sm">Here with you</p>
             {continuity ? (
               <p className="truncate text-xs text-muted">Last time you mentioned {continuity}</p>
             ) : (
@@ -184,11 +191,12 @@ export function TalkPage() {
             )}
           </div>
         </div>
-        <div className="flex shrink-0 items-center gap-1">
-          <Button variant="ghost" size="sm" asChild>
+        <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">
+          <Button className="px-2 text-xs sm:px-3 sm:text-sm" variant="ghost" size="sm" asChild>
             <Link to="/pages">Pages</Link>
           </Button>
           <Button
+            className="px-2 text-xs sm:px-3 sm:text-sm"
             variant="ghost"
             size="sm"
             onClick={() => {
@@ -228,8 +236,8 @@ export function TalkPage() {
 
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
         {empty && !listening ? (
-          <div className="mx-auto flex max-w-lg flex-col items-start px-6 py-16">
-            <p className="font-display text-2xl font-medium tracking-tight text-fg sm:text-3xl">
+          <div className="mx-auto flex max-w-lg flex-col items-start px-5 py-14 sm:px-6 sm:py-16">
+            <p className="font-display text-[1.4rem] font-medium tracking-tight text-fg sm:text-3xl">
               Whenever you're ready.
             </p>
             <p className="mt-3 text-sm leading-relaxed text-muted">
@@ -241,9 +249,7 @@ export function TalkPage() {
         )}
       </div>
 
-      {notice ? (
-        <p className="px-4 pb-1 text-center text-xs text-muted">{notice}</p>
-      ) : null}
+      {notice ? <p className="px-4 pb-1 text-center text-xs text-muted">{notice}</p> : null}
 
       {pulseOpen ? (
         <PulseBar

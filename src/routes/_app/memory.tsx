@@ -38,7 +38,9 @@ export function MemoryPage() {
   const [open, setOpen] = useState(false);
   const [extracting, setExtracting] = useState(false);
   const [extractNote, setExtractNote] = useState<string | null>(null);
-  const [suggestions, setSuggestions] = useState<Array<{ kind: MemoryKind; title: string; detail: string }>>([]);
+  const [suggestions, setSuggestions] = useState<
+    Array<{ kind: MemoryKind; title: string; detail: string }>
+  >([]);
 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -67,7 +69,8 @@ export function MemoryPage() {
       setExtractNote("Memory is off. Turn it on when you want Still to remember something.");
       return;
     }
-    const convo = conversations.find((item) => item.id === activeConversationId) ?? conversations[0];
+    const convo =
+      conversations.find((item) => item.id === activeConversationId) ?? conversations[0];
     if (!convo || convo.messages.length < 2) {
       setExtractNote("Have a little more of a talk first — then Still can offer notes.");
       return;
@@ -93,27 +96,35 @@ export function MemoryPage() {
   return (
     <div className="app-page mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 py-6 sm:py-8">
       <BackLink fallback="/talk" className="mb-3" />
-      <header className="flex flex-wrap items-end justify-between gap-3">
-        <div>
+      <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="min-w-0">
           <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted">Memory</p>
-          <h1 className="font-display mt-1 text-2xl font-medium tracking-tight sm:text-3xl">What Still keeps</h1>
+          <h1 className="font-display mt-1 text-2xl font-medium tracking-tight sm:text-3xl">
+            What Still keeps
+          </h1>
           <p className="mt-2 max-w-md text-sm leading-relaxed text-muted">
             Only what you allow. Edit or delete anything. It is kept with your account.
           </p>
         </div>
-        <div className="flex w-full flex-wrap gap-1.5 sm:w-auto sm:gap-2">
-          <Button size="sm" variant="quiet" onClick={() => void fromTalk()} disabled={extracting}>
+        <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto">
+          <Button
+            className="w-full sm:w-auto"
+            size="sm"
+            variant="quiet"
+            onClick={() => void fromTalk()}
+            disabled={extracting}
+          >
             {extracting ? "Reading…" : "From this talk"}
           </Button>
-          <Button size="sm" onClick={startNew}>
+          <Button className="w-full sm:w-auto" size="sm" onClick={startNew}>
             <Plus className="size-4" />
             Add
           </Button>
         </div>
       </header>
 
-      <section className="mt-6 flex items-center justify-between gap-4 rounded-xl bg-surface p-4 shadow-[var(--shadow-border)]">
-        <div>
+      <section className="mt-6 flex flex-col items-start gap-3 rounded-xl bg-surface p-4 shadow-[var(--shadow-border)] sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+        <div className="min-w-0">
           <p className="text-sm font-medium">Let Still use memory</p>
           <p className="mt-1 max-w-md text-xs leading-relaxed text-muted">
             When this is off, existing memories stay here but are not used to shape replies.
@@ -136,9 +147,11 @@ export function MemoryPage() {
 
       {suggestions.length ? (
         <section className="mt-4 rounded-xl bg-surface-2 p-4 shadow-[var(--shadow-border)]">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted">Suggested memories</p>
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted">
+                Suggested memories
+              </p>
               <p className="mt-1 text-sm text-fg">Keep only what feels true and useful.</p>
             </div>
             <Button
@@ -155,7 +168,9 @@ export function MemoryPage() {
           <ul className="mt-3 space-y-2">
             {suggestions.map((item, index) => (
               <li key={`${item.title}-${index}`} className="rounded-lg bg-surface px-3 py-3">
-                <p className="text-[11px] uppercase tracking-[0.12em] text-muted">{MEMORY_KIND_LABEL[item.kind]}</p>
+                <p className="text-[11px] uppercase tracking-[0.12em] text-muted">
+                  {MEMORY_KIND_LABEL[item.kind]}
+                </p>
                 <p className="mt-1 text-sm font-medium text-fg">{item.title}</p>
                 <p className="mt-1 text-sm leading-relaxed text-muted">{item.detail}</p>
               </li>
@@ -181,7 +196,7 @@ export function MemoryPage() {
           placeholder="Search memory"
           aria-label="Search memory"
         />
-        <div className="flex flex-wrap gap-1.5">
+        <div className="flex max-w-full flex-nowrap gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:flex-wrap sm:overflow-visible sm:pb-0">
           <FilterChip active={filter === "all"} onClick={() => setFilter("all")}>
             All
           </FilterChip>
@@ -197,7 +212,8 @@ export function MemoryPage() {
         <div className="mt-16">
           <p className="font-display text-2xl font-medium tracking-tight">Nothing stored yet.</p>
           <p className="mt-2 max-w-sm text-sm leading-relaxed text-muted">
-            Recurring themes, people, what helped, goals you set for yourself. Still will only keep what you can see here.
+            Recurring themes, people, what helped, goals you set for yourself. Still will only keep
+            what you can see here.
           </p>
         </div>
       ) : (
@@ -205,10 +221,10 @@ export function MemoryPage() {
           {visible.map((m) => (
             <li
               key={m.id}
-              className="rounded-xl bg-surface p-4 shadow-[var(--shadow-border)]"
+              className="rounded-xl bg-surface p-3.5 shadow-[var(--shadow-border)] sm:p-4"
             >
               <div className="flex items-start justify-between gap-3">
-                <div>
+                <div className="min-w-0">
                   <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted">
                     {MEMORY_KIND_LABEL[m.kind]}
                     <span className="text-subtle"> · {m.source === "you" ? "You" : "Still"}</span>
@@ -219,7 +235,7 @@ export function MemoryPage() {
                     Updated {formatDistanceToNow(new Date(m.updatedAt), { addSuffix: true })}
                   </p>
                 </div>
-                <div className="flex shrink-0">
+                <div className="-mr-1 -mt-1 flex shrink-0">
                   <Button
                     variant="ghost"
                     size="icon"
@@ -276,8 +292,8 @@ function FilterChip({
       onClick={onClick}
       className={
         active
-          ? "h-9 rounded-full bg-accent px-3 text-xs font-medium text-accent-fg"
-          : "h-9 rounded-full bg-surface-2 px-3 text-xs text-muted shadow-[var(--shadow-border)]"
+          ? "h-9 shrink-0 whitespace-nowrap rounded-full bg-accent px-3 text-xs font-medium text-accent-fg"
+          : "h-9 shrink-0 whitespace-nowrap rounded-full bg-surface-2 px-3 text-xs text-muted shadow-[var(--shadow-border)]"
       }
     >
       {children}
@@ -303,10 +319,7 @@ function MemoryEditor({
   const ready = open && item;
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={onOpenChange}
-    >
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         onOpenAutoFocus={() => {
           setTitle(item?.title ?? "");

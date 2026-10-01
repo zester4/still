@@ -20,7 +20,7 @@ export function CheckInPrompt({
 
   return (
     <div className="mx-auto w-full max-w-2xl px-4 pt-4">
-      <div className="rounded-xl bg-surface p-5 shadow-[var(--shadow-border)]">
+      <div className="rounded-xl bg-surface p-4 shadow-[var(--shadow-border)] sm:p-5">
         <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted">
           Thinking of you
         </p>
@@ -35,8 +35,10 @@ export function CheckInPrompt({
               type="button"
               onClick={() => setMood(m)}
               className={cn(
-                "h-11 rounded-md text-sm transition-colors duration-150",
-                mood === m ? "bg-accent text-accent-fg" : "bg-surface-2 text-fg shadow-[var(--shadow-border)]",
+                "h-10 rounded-md text-xs transition-colors duration-150 sm:h-11 sm:text-sm",
+                mood === m
+                  ? "bg-accent text-accent-fg"
+                  : "bg-surface-2 text-fg shadow-[var(--shadow-border)]",
               )}
             >
               {MOOD_LABEL[m]}
