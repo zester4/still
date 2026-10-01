@@ -60,10 +60,10 @@ export function LettersPage() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 py-6 sm:py-8">
+    <div className="app-page mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 py-6 sm:py-8">
       <BackLink fallback="/you" className="mb-3" />
       <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted">Letters</p>
-      <div className="mt-1 flex items-end justify-between gap-3">
+      <div className="mt-1 flex flex-wrap items-end justify-between gap-3">
         <h1 className="font-display text-2xl font-medium tracking-tight sm:text-3xl">You don't have to send it.</h1>
         <Button size="sm" variant="quiet" onClick={startNew}>
           Write
@@ -120,7 +120,7 @@ function LetterEditor({
   const heavy = useMemo(() => detectCrisis(`${letter.to} ${letter.body}`), [letter.to, letter.body]);
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 py-6 sm:py-8">
+    <div className="app-page mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 py-6 sm:py-8">
       <BackLink fallback="/letters" className="mb-3" onClick={onCancel} />
       <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted">A letter</p>
       <h1 className="font-display mt-1 text-2xl font-medium tracking-tight sm:text-3xl">Write, and leave it here.</h1>

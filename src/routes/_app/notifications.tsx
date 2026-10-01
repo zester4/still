@@ -32,9 +32,9 @@ export function NotificationsPage() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 py-6 sm:py-8">
+    <div className="app-page mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 py-6 sm:py-8">
       <BackLink fallback="/you" className="mb-3" />
-      <div className="flex items-end justify-between gap-3">
+      <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted">Notifications</p>
           <h1 className="font-display mt-1 text-2xl font-medium tracking-tight sm:text-3xl">A gentle nudge.</h1>

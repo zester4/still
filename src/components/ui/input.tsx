@@ -8,7 +8,7 @@ const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
         type={type}
         suppressHydrationWarning
         className={cn(
-          "flex h-11 w-full rounded-md bg-surface-2 px-3.5 text-sm text-fg shadow-[var(--shadow-border)]",
+          "flex h-10 w-full rounded-md bg-surface-2 px-3 text-[0.8125rem] text-fg shadow-[var(--shadow-border)] sm:h-11 sm:px-3.5 sm:text-sm",
           "placeholder:text-subtle",
           "transition-[box-shadow] duration-150",
           "hover:shadow-[var(--shadow-border-hover)]",

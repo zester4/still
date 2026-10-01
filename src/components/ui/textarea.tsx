@@ -6,7 +6,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, React.ComponentProps<"tex
     return (
       <textarea
         className={cn(
-          "flex min-h-24 w-full rounded-lg bg-surface-2 px-3.5 py-3 text-sm text-fg shadow-[var(--shadow-border)]",
+          "flex min-h-24 w-full rounded-lg bg-surface-2 px-3 py-2.5 text-[0.8125rem] text-fg shadow-[var(--shadow-border)] sm:px-3.5 sm:py-3 sm:text-sm",
           "placeholder:text-subtle",
           "transition-[box-shadow] duration-150",
           "hover:shadow-[var(--shadow-border-hover)]",

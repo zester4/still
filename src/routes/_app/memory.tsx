@@ -91,7 +91,7 @@ export function MemoryPage() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 py-6 sm:py-8">
+    <div className="app-page mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 py-6 sm:py-8">
       <BackLink fallback="/talk" className="mb-3" />
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
@@ -101,11 +101,11 @@ export function MemoryPage() {
             Only what you allow. Edit or delete anything. It is kept with your account.
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="quiet" onClick={() => void fromTalk()} disabled={extracting}>
+        <div className="flex w-full flex-wrap gap-1.5 sm:w-auto sm:gap-2">
+          <Button size="sm" variant="quiet" onClick={() => void fromTalk()} disabled={extracting}>
             {extracting ? "Reading…" : "From this talk"}
           </Button>
-          <Button onClick={startNew}>
+          <Button size="sm" onClick={startNew}>
             <Plus className="size-4" />
             Add
           </Button>

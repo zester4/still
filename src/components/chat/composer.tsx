@@ -34,7 +34,7 @@ export function Composer({
   return (
     <form
       onSubmit={submit}
-      className="mx-auto w-full max-w-2xl px-3 pb-2 pt-1.5 sm:px-4 sm:pb-3 sm:pt-2"
+      className="mx-auto w-full max-w-2xl px-3 pb-1.5 pt-1 sm:px-4 sm:pb-3 sm:pt-2"
     >
       <div
         className={cn(
@@ -50,7 +50,7 @@ export function Composer({
           placeholder={placeholder}
           disabled={disabled}
           aria-label="Message"
-          className="h-11 min-h-11 flex-1 resize-none overflow-y-auto bg-transparent py-2.5 text-[0.95rem] leading-relaxed text-fg placeholder:text-subtle focus-visible:outline-none disabled:opacity-60"
+          className="h-10 min-h-10 flex-1 resize-none overflow-y-auto bg-transparent py-2 text-[0.875rem] leading-relaxed text-fg placeholder:text-subtle focus-visible:outline-none disabled:opacity-60 sm:h-11 sm:min-h-11 sm:py-2.5 sm:text-[0.95rem]"
         />
         <Button
           type="submit"

@@ -99,6 +99,44 @@ body::before {
     var(--color-bg);
 }
 
+@media (max-width: 639px) {
+  .app-page {
+    padding-top: 1.25rem;
+    padding-bottom: 1.25rem;
+  }
+
+  .app-page > section.rounded-xl {
+    padding: 1rem;
+  }
+
+  .app-page h1 {
+    font-size: 1.4rem;
+    line-height: 1.2;
+  }
+
+  .app-page h2 {
+    font-size: 1.2rem;
+    line-height: 1.25;
+  }
+
+  .app-page p.text-sm {
+    font-size: 0.8125rem;
+    line-height: 1.5;
+  }
+
+  .app-page .mt-8 {
+    margin-top: 1.5rem;
+  }
+
+  .app-page .mt-10 {
+    margin-top: 2rem;
+  }
+
+  .app-page .gap-3 {
+    gap: 0.625rem;
+  }
+}
+
 .listening-dash {
   width: 10px;
   height: 1.5px;

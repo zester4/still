@@ -98,7 +98,7 @@ export function YouPage() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 py-6 sm:py-8">
+    <div className="app-page mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 py-6 sm:py-8">
       <BackLink fallback="/talk" className="mb-3" />
       <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted">Settings</p>
       <h1 className="font-display mt-1 text-2xl font-medium tracking-tight sm:text-3xl">Your space is yours.</h1>

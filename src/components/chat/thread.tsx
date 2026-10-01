@@ -23,7 +23,7 @@ export function Thread({
   }, [messages.length, listening, lastContentLength]);
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col gap-5 px-4 py-6 [overflow-anchor:none] sm:gap-6 sm:py-8">
+    <div className="mx-auto flex w-full max-w-2xl flex-col gap-4 px-4 py-4 [overflow-anchor:none] sm:gap-6 sm:py-8">
       {messages.map((m) => (
         <MessageBubble key={m.id} message={m} />
       ))}
@@ -37,7 +37,7 @@ function MessageBubble({ message }: { message: ChatMessage }) {
   if (message.role === "user") {
     return (
       <div className="flex justify-end">
-        <div className="max-w-[min(100%,34rem)] rounded-[18px] rounded-br-sm bg-surface-2 px-4 py-3 text-[0.875rem] leading-relaxed text-fg shadow-[var(--shadow-border)] sm:text-[0.9rem]">
+        <div className="max-w-[min(100%,34rem)] rounded-[18px] rounded-br-sm bg-surface-2 px-3.5 py-2.5 text-[0.8125rem] leading-relaxed text-fg shadow-[var(--shadow-border)] sm:px-4 sm:py-3 sm:text-[0.9rem]">
           <p className="whitespace-pre-wrap">{message.content}</p>
         </div>
       </div>
@@ -50,7 +50,7 @@ function MessageBubble({ message }: { message: ChatMessage }) {
         <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.16em] text-subtle">Still</p>
         <div
           className={cn(
-            "font-display text-[0.98rem] leading-[1.55] text-fg sm:text-[1rem]",
+            "font-display text-[0.9rem] leading-[1.55] text-fg sm:text-[1rem]",
             message.crisis && "text-fg",
           )}
         >
