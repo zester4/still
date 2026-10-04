@@ -15,15 +15,17 @@ export function PrivacyPage() {
         <p>
           This policy is for people who use this Still instance: visitors to the public pages, and
           people who make an account. Still is for adults. We do not knowingly collect personal
-          information from anyone under 18. If you believe a child made an account, erase it from You
-          or stop using the instance and tell the operator.
+          information from anyone under 18. If you believe a child made an account, erase it from
+          You or stop using the instance and tell the operator.
         </p>
       </LegalSection>
 
       <LegalSection title="2. What we collect">
         <p>When you make an account:</p>
         <ul className="list-disc space-y-1 pl-5">
-          <li>Email, a password stored as a hash (not the password itself), and an optional name.</li>
+          <li>
+            Email, a password stored as a hash (not the password itself), and an optional name.
+          </li>
           <li>The time the account was created.</li>
         </ul>
         <p>When you use the companion:</p>
@@ -33,16 +35,19 @@ export function PrivacyPage() {
           <li>Letters you write and do not have to send.</li>
           <li>Optional check-ins, moods, and “did you feel understood” answers.</li>
           <li>Onboarding choices, such as concerns you named.</li>
-          <li>Conversation summaries and weekly reflections generated from the talks and check-ins you keep.</li>
+          <li>
+            Conversation summaries and weekly reflections generated from the talks and check-ins you
+            keep.
+          </li>
         </ul>
         <p>
-          The product also keeps a copy of that companion data in this browser (local storage) so the
-          space feels immediate. Signing in loads the account copy from the server when a database is
-          configured.
+          The browser keeps the current page in memory while it is open so the space feels
+          immediate. It does not persist your talks, memory, letters, check-ins, or answers to local
+          storage. Signing in loads the account copy from the server.
         </p>
         <p>
-          We do not ask for payment details, precise location, contacts, photos from your camera roll,
-          or health-record connections.
+          We do not ask for payment details, precise location, contacts, photos from your camera
+          roll, or health-record connections.
         </p>
       </LegalSection>
 
@@ -62,27 +67,28 @@ export function PrivacyPage() {
       <LegalSection title="4. Who else can see words">
         <p>
           <strong className="font-medium text-fg">The language model.</strong> When OpenRouter is
-          configured, the current talk (and a little memory for continuity) is sent to OpenRouter so a
-          model can reply. OpenRouter and the model provider then process that text under their own
-          terms. Crisis language is not supposed to be answered by the model; it follows a fixed path
-          instead. If OpenRouter is not configured, an on-device listener replies and that text does
-          not leave the instance for generation.
+          configured, the current talk (and a little memory for continuity) is sent to OpenRouter so
+          a model can reply. OpenRouter and the model provider then process that text under their
+          own terms. Crisis language is not supposed to be answered by the model; it follows a fixed
+          path instead. If OpenRouter is not configured, an on-device listener replies and that text
+          does not leave the instance for generation.
         </p>
         <p>
           If the operator enables <code>AI_ZERO_DATA_RETENTION=true</code> and restricts routing to
-          compatible providers, the configured AI route is intended not to retain prompts or use them
-          for training. The current message still travels to the provider briefly to generate a reply;
-          this is not end-to-end encryption.
+          compatible providers, the configured AI route is intended not to retain prompts or use
+          them for training. The current message still travels to the provider briefly to generate a
+          reply; this is not end-to-end encryption.
         </p>
         <p>
           <strong className="font-medium text-fg">The database.</strong> When a database URL is set,
-          account and companion data are stored in Postgres (Neon in production). The operator of the
-          instance, and the database host, can technically access rows. Queries are written to load
-          only the signed-in person’s data.
+          account and companion data are stored in Postgres (Neon in production). The operator of
+          the instance, and the database host, can technically access rows. Queries are written to
+          load only the signed-in person’s data.
         </p>
         <p>
-          <strong className="font-medium text-fg">Hosting.</strong> The app is served by whatever host
-          the operator chose. Hosts see ordinary technical logs (IP address, time, pages requested).
+          <strong className="font-medium text-fg">Hosting.</strong> The app is served by whatever
+          host the operator chose. Hosts see ordinary technical logs (IP address, time, pages
+          requested).
         </p>
         <p>
           We do not sell personal information. We do not share talks with advertisers. We may share
@@ -92,25 +98,26 @@ export function PrivacyPage() {
 
       <LegalSection title="5. Cookies and this device">
         <p>
-          Signing in uses a session cookie (or similar) so the server knows it is you. That cookie is
-          necessary for the account. We do not use advertising cookies or third-party trackers in the
-          product as shipped.
+          Signing in uses a session cookie (or similar) so the server knows it is you. That cookie
+          is necessary for the account. We do not use advertising cookies or third-party trackers in
+          the product as shipped.
         </p>
         <p>
-          Companion data is also cached in local storage on this device. Clearing site data in the
-          browser removes that copy. It does not, by itself, erase the account copy on the server.
-          Use Erase in You for that.
+          Companion data is not persisted in local storage. A signed-in page can temporarily hold
+          the current account data in browser memory while it is open; closing the page clears that
+          copy. Use Erase in You to remove the account copy on the server.
         </p>
       </LegalSection>
 
       <LegalSection title="6. How long">
         <p>
           Account and companion data stay until you erase them, or until the operator deletes the
-          instance. Session cookies last about thirty days of inactivity, unless you sign out sooner.
+          instance. Session cookies last about thirty days of inactivity, unless you sign out
+          sooner.
         </p>
         <p>
-          This is not a medical record. There is no hospital retention schedule. If you need something
-          gone, export if you want a copy, then erase.
+          This is not a medical record. There is no hospital retention schedule. If you need
+          something gone, export if you want a copy, then erase.
         </p>
       </LegalSection>
 
@@ -118,7 +125,7 @@ export function PrivacyPage() {
         <ul className="list-disc space-y-1 pl-5">
           <li>Edit or delete memory items one by one.</li>
           <li>Export a JSON copy from You.</li>
-          <li>Erase your account and companion data from You (server copy and this device).</li>
+          <li>Erase your account and companion data from You (including the server copy).</li>
           <li>Sign out.</li>
           <li>Stop using Still.</li>
         </ul>

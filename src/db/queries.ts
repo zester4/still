@@ -28,11 +28,8 @@ import type {
   ConversationSummary,
   WeeklyReflection,
 } from "@/lib/companion/types";
-import type {
-  NotificationItem,
-  NotificationKind,
-  StillPreferences,
-} from "@/lib/companion/types";
+import type { NotificationItem, NotificationKind, StillPreferences } from "@/lib/companion/types";
+import type { CloudSyncOperation } from "@/lib/store/cloud-sync";
 
 export type StillSnapshot = Omit<StillState, "hydrated">;
 
@@ -142,14 +139,24 @@ export async function verifyEmailToken(token: string): Promise<boolean> {
 
 export async function updatePassword(userId: string, passwordHash: string) {
   const db = await getDb();
-  await db.update(users).set({ passwordHash, updatedAt: new Date().toISOString() }).where(eq(users.id, userId));
+  await db
+    .update(users)
+    .set({ passwordHash, updatedAt: new Date().toISOString() })
+    .where(eq(users.id, userId));
 }
 
 export async function revokeAllSessions(userId: string) {
   const db = await getDb();
-  const [user] = await db.select({ sessionVersion: users.sessionVersion }).from(users).where(eq(users.id, userId)).limit(1);
+  const [user] = await db
+    .select({ sessionVersion: users.sessionVersion })
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1);
   if (!user) return;
-  await db.update(users).set({ sessionVersion: user.sessionVersion + 1, updatedAt: new Date().toISOString() }).where(eq(users.id, userId));
+  await db
+    .update(users)
+    .set({ sessionVersion: user.sessionVersion + 1, updatedAt: new Date().toISOString() })
+    .where(eq(users.id, userId));
 }
 
 export async function findUserById(id: string): Promise<UserRow | null> {
@@ -284,7 +291,8 @@ export async function loadSnapshot(userId: string): Promise<StillSnapshot> {
     });
   }
   const sortedMessages = [...messageRows].sort((a, b) => {
-    if (a.conversationId !== b.conversationId) return a.conversationId.localeCompare(b.conversationId);
+    if (a.conversationId !== b.conversationId)
+      return a.conversationId.localeCompare(b.conversationId);
     if (a.sortOrder !== b.sortOrder) return a.sortOrder - b.sortOrder;
     return a.createdAt.localeCompare(b.createdAt);
   });
@@ -307,39 +315,33 @@ export async function loadSnapshot(userId: string): Promise<StillSnapshot> {
     concerns: profile?.concerns ?? [],
     conversations: sortedConvos.map((c) => byConvo.get(c.id)!),
     activeConversationId: sortedConvos[0]?.id ?? null,
-    memories: memoryRows.map(
-      (m): MemoryItem => ({
-        id: m.id,
-        kind: m.kind as MemoryItem["kind"],
-        title: m.title,
-        detail: m.detail,
-        source: m.source as MemoryItem["source"],
-        createdAt: m.createdAt,
-        updatedAt: m.updatedAt,
-      }),
-    ),
-    letters: letterRows.map(
-      (l): Letter => ({
-        id: l.id,
-        to: l.to,
-        body: l.body,
-        createdAt: l.createdAt,
-        updatedAt: l.updatedAt,
-      }),
-    ),
+    memories: memoryRows.map((m): MemoryItem => ({
+      id: m.id,
+      kind: m.kind as MemoryItem["kind"],
+      title: m.title,
+      detail: m.detail,
+      source: m.source as MemoryItem["source"],
+      createdAt: m.createdAt,
+      updatedAt: m.updatedAt,
+    })),
+    letters: letterRows.map((l): Letter => ({
+      id: l.id,
+      to: l.to,
+      body: l.body,
+      createdAt: l.createdAt,
+      updatedAt: l.updatedAt,
+    })),
     checkIns: {
       enabled: profile?.checkInsEnabled ?? false,
       frequency: (profile?.checkInFrequency as CheckInFrequency) ?? "few",
       lastShownAt: profile?.lastShownAt ?? null,
       lastAnsweredAt: profile?.lastAnsweredAt ?? null,
-      entries: checkRows.map(
-        (e): CheckInEntry => ({
-          id: e.id,
-          at: e.at,
-          mood: e.mood as CheckInEntry["mood"],
-          note: e.note,
-        }),
-      ),
+      entries: checkRows.map((e): CheckInEntry => ({
+        id: e.id,
+        at: e.at,
+        mood: e.mood as CheckInEntry["mood"],
+        note: e.note,
+      })),
     },
     preferences: {
       memoryEnabled: profile?.memoryEnabled ?? true,
@@ -353,25 +355,21 @@ export async function loadSnapshot(userId: string): Promise<StillSnapshot> {
     notifications: notificationRows
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
       .slice(0, 50)
-      .map(
-        (n): NotificationItem => ({
-          id: n.id,
-          kind: n.kind as NotificationKind,
-          title: n.title,
-          body: n.body,
-          href: n.href,
-          readAt: n.readAt,
-          createdAt: n.createdAt,
-        }),
-      ),
-    pulses: pulseRows.map(
-      (p): PulseEntry => ({
-        id: p.id,
-        conversationId: p.conversationId,
-        at: p.at,
-        value: p.value as PulseEntry["value"],
-      }),
-    ),
+      .map((n): NotificationItem => ({
+        id: n.id,
+        kind: n.kind as NotificationKind,
+        title: n.title,
+        body: n.body,
+        href: n.href,
+        readAt: n.readAt,
+        createdAt: n.createdAt,
+      })),
+    pulses: pulseRows.map((p): PulseEntry => ({
+      id: p.id,
+      conversationId: p.conversationId,
+      at: p.at,
+      value: p.value as PulseEntry["value"],
+    })),
     createdAt: profile?.createdAt ?? new Date().toISOString(),
   };
   return snapshot;
@@ -506,6 +504,223 @@ export async function saveSnapshot(userId: string, snap: StillSnapshot): Promise
   }
 }
 
+/**
+ * Apply only the rows that changed in the browser. This deliberately does not
+ * derive deletes from a client snapshot: another tab may have rows this tab
+ * has never seen. Every operation is scoped by userId and is safe to retry.
+ */
+export async function applyCloudSyncOperations(
+  userId: string,
+  operations: CloudSyncOperation[],
+): Promise<number> {
+  const db = await getDb();
+  let applied = 0;
+
+  for (const operation of operations.slice(0, 500)) {
+    switch (operation.type) {
+      case "profile": {
+        const profile = operation.profile;
+        await db
+          .insert(profiles)
+          .values({
+            userId,
+            displayName: profile.name.slice(0, 120),
+            concerns: profile.concerns.slice(0, 20),
+            onboarded: profile.onboarded,
+            checkInsEnabled: profile.checkIns.enabled,
+            checkInFrequency: profile.checkIns.frequency,
+            memoryEnabled: profile.preferences.memoryEnabled,
+            notificationsEnabled: profile.preferences.notificationsEnabled,
+            emailNotificationsEnabled: profile.preferences.emailNotificationsEnabled,
+            timezone: profile.preferences.timezone.slice(0, 80),
+            checkInTime: profile.preferences.checkInTime,
+            quietHoursStart: profile.preferences.quietHoursStart,
+            quietHoursEnd: profile.preferences.quietHoursEnd,
+            lastShownAt: profile.checkIns.lastShownAt,
+            lastAnsweredAt: profile.checkIns.lastAnsweredAt,
+          })
+          .onConflictDoUpdate({
+            target: profiles.userId,
+            set: {
+              displayName: profile.name.slice(0, 120),
+              concerns: profile.concerns.slice(0, 20),
+              onboarded: profile.onboarded,
+              checkInsEnabled: profile.checkIns.enabled,
+              checkInFrequency: profile.checkIns.frequency,
+              memoryEnabled: profile.preferences.memoryEnabled,
+              notificationsEnabled: profile.preferences.notificationsEnabled,
+              emailNotificationsEnabled: profile.preferences.emailNotificationsEnabled,
+              timezone: profile.preferences.timezone.slice(0, 80),
+              checkInTime: profile.preferences.checkInTime,
+              quietHoursStart: profile.preferences.quietHoursStart,
+              quietHoursEnd: profile.preferences.quietHoursEnd,
+              lastShownAt: profile.checkIns.lastShownAt,
+              lastAnsweredAt: profile.checkIns.lastAnsweredAt,
+            },
+          });
+        applied += 1;
+        break;
+      }
+      case "conversation": {
+        const conversation = operation.conversation;
+        await db
+          .insert(conversations)
+          .values({
+            id: conversation.id,
+            userId,
+            startedAt: conversation.startedAt,
+            updatedAt: conversation.updatedAt,
+            pulseAsked: Boolean(conversation.pulseAsked),
+          })
+          .onConflictDoNothing({ target: conversations.id });
+        await db
+          .update(conversations)
+          .set({
+            startedAt: conversation.startedAt,
+            updatedAt: conversation.updatedAt,
+            pulseAsked: Boolean(conversation.pulseAsked),
+          })
+          .where(and(eq(conversations.id, conversation.id), eq(conversations.userId, userId)));
+        applied += 1;
+        break;
+      }
+      case "message": {
+        const message = operation.message;
+        const [ownedConversation] = await db
+          .select({ id: conversations.id })
+          .from(conversations)
+          .where(
+            and(eq(conversations.id, operation.conversationId), eq(conversations.userId, userId)),
+          )
+          .limit(1);
+        if (!ownedConversation) break;
+        await db
+          .insert(messages)
+          .values({
+            id: message.id,
+            userId,
+            conversationId: operation.conversationId,
+            role: message.role,
+            content: message.content.slice(0, 12000),
+            intent: message.intent ?? null,
+            crisis: Boolean(message.crisis),
+            createdAt: message.createdAt,
+            sortOrder: Math.max(0, Math.min(operation.sortOrder, 1000000)),
+          })
+          .onConflictDoNothing({ target: messages.id });
+        await db
+          .update(messages)
+          .set({
+            conversationId: operation.conversationId,
+            role: message.role,
+            content: message.content.slice(0, 12000),
+            intent: message.intent ?? null,
+            crisis: Boolean(message.crisis),
+            createdAt: message.createdAt,
+            sortOrder: Math.max(0, Math.min(operation.sortOrder, 1000000)),
+          })
+          .where(and(eq(messages.id, message.id), eq(messages.userId, userId)));
+        applied += 1;
+        break;
+      }
+      case "memory": {
+        const memory = operation.memory;
+        await db
+          .insert(memories)
+          .values({
+            id: memory.id,
+            userId,
+            kind: memory.kind,
+            title: memory.title.slice(0, 160),
+            detail: memory.detail.slice(0, 1200),
+            source: memory.source,
+            createdAt: memory.createdAt,
+            updatedAt: memory.updatedAt,
+          })
+          .onConflictDoNothing({ target: memories.id });
+        await db
+          .update(memories)
+          .set({
+            kind: memory.kind,
+            title: memory.title.slice(0, 160),
+            detail: memory.detail.slice(0, 1200),
+            source: memory.source,
+            createdAt: memory.createdAt,
+            updatedAt: memory.updatedAt,
+          })
+          .where(and(eq(memories.id, memory.id), eq(memories.userId, userId)));
+        applied += 1;
+        break;
+      }
+      case "delete_memory":
+        await db
+          .delete(memories)
+          .where(and(eq(memories.id, operation.id), eq(memories.userId, userId)));
+        applied += 1;
+        break;
+      case "letter": {
+        const letter = operation.letter;
+        await db
+          .insert(letters)
+          .values({
+            id: letter.id,
+            userId,
+            to: letter.to.slice(0, 160),
+            body: letter.body.slice(0, 12000),
+            createdAt: letter.createdAt,
+            updatedAt: letter.updatedAt,
+          })
+          .onConflictDoNothing({ target: letters.id });
+        await db
+          .update(letters)
+          .set({
+            to: letter.to.slice(0, 160),
+            body: letter.body.slice(0, 12000),
+            createdAt: letter.createdAt,
+            updatedAt: letter.updatedAt,
+          })
+          .where(and(eq(letters.id, letter.id), eq(letters.userId, userId)));
+        applied += 1;
+        break;
+      }
+      case "delete_letter":
+        await db
+          .delete(letters)
+          .where(and(eq(letters.id, operation.id), eq(letters.userId, userId)));
+        applied += 1;
+        break;
+      case "check_in":
+        await db
+          .insert(checkInEntries)
+          .values({
+            id: operation.entry.id,
+            userId,
+            at: operation.entry.at,
+            mood: operation.entry.mood,
+            note: operation.entry.note.slice(0, 2000),
+          })
+          .onConflictDoNothing({ target: checkInEntries.id });
+        applied += 1;
+        break;
+      case "pulse":
+        await db
+          .insert(pulses)
+          .values({
+            id: operation.pulse.id,
+            userId,
+            conversationId: operation.pulse.conversationId,
+            at: operation.pulse.at,
+            value: operation.pulse.value,
+          })
+          .onConflictDoNothing({ target: pulses.id });
+        applied += 1;
+        break;
+    }
+  }
+
+  return applied;
+}
+
 export type NotificationInput = {
   kind: NotificationKind;
   title: string;
@@ -513,7 +728,10 @@ export type NotificationInput = {
   href?: string;
 };
 
-export async function createNotification(userId: string, input: NotificationInput): Promise<NotificationItem> {
+export async function createNotification(
+  userId: string,
+  input: NotificationInput,
+): Promise<NotificationItem> {
   const db = await getDb();
   const [row] = await db
     .insert(notifications)
@@ -583,7 +801,10 @@ export async function getPreferences(userId: string): Promise<StillPreferences> 
   };
 }
 
-export async function savePreferences(userId: string, patch: Partial<StillPreferences>): Promise<StillPreferences> {
+export async function savePreferences(
+  userId: string,
+  patch: Partial<StillPreferences>,
+): Promise<StillPreferences> {
   const current = await getPreferences(userId);
   const next = { ...current, ...patch };
   const db = await getDb();
@@ -607,7 +828,11 @@ export async function savePreferences(userId: string, patch: Partial<StillPrefer
 
 export async function getCheckInSchedule(userId: string) {
   const db = await getDb();
-  const [row] = await db.select().from(checkInSchedules).where(eq(checkInSchedules.userId, userId)).limit(1);
+  const [row] = await db
+    .select()
+    .from(checkInSchedules)
+    .where(eq(checkInSchedules.userId, userId))
+    .limit(1);
   return row ?? null;
 }
 
@@ -634,7 +859,10 @@ export async function saveCheckInSchedule(input: {
 
 export async function markCheckInSent(userId: string, at = new Date().toISOString()) {
   const db = await getDb();
-  await db.update(checkInSchedules).set({ lastSentAt: at, updatedAt: at }).where(eq(checkInSchedules.userId, userId));
+  await db
+    .update(checkInSchedules)
+    .set({ lastSentAt: at, updatedAt: at })
+    .where(eq(checkInSchedules.userId, userId));
 }
 
 export async function saveConversationSummary(input: {
@@ -672,7 +900,10 @@ export async function saveConversationSummary(input: {
 
 export async function listConversationSummaries(userId: string): Promise<ConversationSummary[]> {
   const db = await getDb();
-  const rows = await db.select().from(conversationSummaries).where(eq(conversationSummaries.userId, userId));
+  const rows = await db
+    .select()
+    .from(conversationSummaries)
+    .where(eq(conversationSummaries.userId, userId));
   return rows
     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
     .map((row) => ({
@@ -686,7 +917,10 @@ export async function listConversationSummaries(userId: string): Promise<Convers
     }));
 }
 
-export async function getWeeklyReflection(userId: string, weekStart: string): Promise<WeeklyReflection | null> {
+export async function getWeeklyReflection(
+  userId: string,
+  weekStart: string,
+): Promise<WeeklyReflection | null> {
   const db = await getDb();
   const [row] = await db
     .select()

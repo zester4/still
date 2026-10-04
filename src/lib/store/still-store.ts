@@ -1,7 +1,6 @@
 "use client";
 
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
 import { uid, nowIso } from "@/lib/utils";
 import type {
   CheckInFrequency,
@@ -26,6 +25,7 @@ const CHECKIN_MS: Record<CheckInFrequency, number> = {
 
 type StillActions = {
   setHydrated: () => void;
+  resetForCloudLoad: () => void;
   completeOnboarding: (input: {
     name: string;
     concerns: string[];
@@ -38,7 +38,10 @@ type StillActions = {
   markNotificationsRead: (ids?: string[]) => void;
   ensureConversation: () => string;
   startNewPage: () => string;
-  addMessage: (conversationId: string, message: Omit<ChatMessage, "id" | "createdAt"> & { id?: string }) => string;
+  addMessage: (
+    conversationId: string,
+    message: Omit<ChatMessage, "id" | "createdAt"> & { id?: string },
+  ) => string;
   updateMessage: (conversationId: string, messageId: string, patch: Partial<ChatMessage>) => void;
   appendToMessage: (conversationId: string, messageId: string, chunk: string) => void;
   markPulseAsked: (conversationId: string) => void;
@@ -86,291 +89,273 @@ const emptyState = (): Omit<StillState, "hydrated"> => ({
   createdAt: nowIso(),
 });
 
-export const useStillStore = create<StillState & StillActions>()(
-  persist(
-    (set, get) => ({
-      hydrated: false,
-      ...emptyState(),
+export const useStillStore = create<StillState & StillActions>()((set, get) => ({
+  hydrated: false,
+  ...emptyState(),
 
       setHydrated: () => set({ hydrated: true }),
 
-      completeOnboarding: ({ name, concerns, checkInsEnabled, frequency }) => {
-        const convoId = uid();
-        const greeting: ChatMessage = {
-          id: uid(),
-          role: "companion",
-          content: greetingFor(name, concerns),
-          createdAt: nowIso(),
-          intent: "check-in",
-        };
-        const convo: Conversation = {
-          id: convoId,
-          startedAt: nowIso(),
-          updatedAt: nowIso(),
-          messages: [greeting],
-        };
-        const memories: MemoryItem[] = concerns
-          .filter((c) => c !== "unsure" && c !== "talk")
-          .map((c) => ({
-            id: uid(),
-            kind: "theme" as const,
-            title: titleForConcern(c),
-            detail: "You named this as present when you first arrived.",
-            createdAt: nowIso(),
-            updatedAt: nowIso(),
-            source: "you" as const,
-          }));
-        set({
-          onboarded: true,
-          name: name.trim(),
-          concerns,
-          conversations: [convo],
-          activeConversationId: convoId,
-          memories,
-          checkIns: {
-            enabled: checkInsEnabled,
-            frequency,
-            lastShownAt: nowIso(),
-            lastAnsweredAt: null,
-            entries: [],
-          },
-        });
+      resetForCloudLoad: () => set({ ...emptyState(), hydrated: false }),
+
+  completeOnboarding: ({ name, concerns, checkInsEnabled, frequency }) => {
+    const convoId = uid();
+    const greeting: ChatMessage = {
+      id: uid(),
+      role: "companion",
+      content: greetingFor(name, concerns),
+      createdAt: nowIso(),
+      intent: "check-in",
+    };
+    const convo: Conversation = {
+      id: convoId,
+      startedAt: nowIso(),
+      updatedAt: nowIso(),
+      messages: [greeting],
+    };
+    const memories: MemoryItem[] = concerns
+      .filter((c) => c !== "unsure" && c !== "talk")
+      .map((c) => ({
+        id: uid(),
+        kind: "theme" as const,
+        title: titleForConcern(c),
+        detail: "You named this as present when you first arrived.",
+        createdAt: nowIso(),
+        updatedAt: nowIso(),
+        source: "you" as const,
+      }));
+    set({
+      onboarded: true,
+      name: name.trim(),
+      concerns,
+      conversations: [convo],
+      activeConversationId: convoId,
+      memories,
+      checkIns: {
+        enabled: checkInsEnabled,
+        frequency,
+        lastShownAt: nowIso(),
+        lastAnsweredAt: null,
+        entries: [],
       },
+    });
+  },
 
-      setName: (name) => set({ name: name.trim() }),
+  setName: (name) => set({ name: name.trim() }),
 
-      setPreferences: (patch) => set((s) => ({ preferences: { ...s.preferences, ...patch } })),
+  setPreferences: (patch) => set((s) => ({ preferences: { ...s.preferences, ...patch } })),
 
-      setNotifications: (items) => set({ notifications: items }),
+  setNotifications: (items) => set({ notifications: items }),
 
-      markNotificationsRead: (ids) =>
-        set((s) => ({
-          notifications: s.notifications.map((item) =>
-            !ids?.length || ids.includes(item.id) ? { ...item, readAt: item.readAt ?? nowIso() } : item,
-          ),
-        })),
+  markNotificationsRead: (ids) =>
+    set((s) => ({
+      notifications: s.notifications.map((item) =>
+        !ids?.length || ids.includes(item.id) ? { ...item, readAt: item.readAt ?? nowIso() } : item,
+      ),
+    })),
 
-      ensureConversation: () => {
-        const { activeConversationId, conversations } = get();
-        if (activeConversationId && conversations.some((c) => c.id === activeConversationId)) {
-          return activeConversationId;
-        }
-        return get().startNewPage();
-      },
+  ensureConversation: () => {
+    const { activeConversationId, conversations } = get();
+    if (activeConversationId && conversations.some((c) => c.id === activeConversationId)) {
+      return activeConversationId;
+    }
+    return get().startNewPage();
+  },
 
-      startNewPage: () => {
-        const id = uid();
-        const convo: Conversation = {
-          id,
-          startedAt: nowIso(),
-          updatedAt: nowIso(),
-          messages: [],
-        };
-        set((s) => ({
-          conversations: [convo, ...s.conversations],
-          activeConversationId: id,
-        }));
-        return id;
-      },
+  startNewPage: () => {
+    const id = uid();
+    const convo: Conversation = {
+      id,
+      startedAt: nowIso(),
+      updatedAt: nowIso(),
+      messages: [],
+    };
+    set((s) => ({
+      conversations: [convo, ...s.conversations],
+      activeConversationId: id,
+    }));
+    return id;
+  },
 
-      addMessage: (conversationId, message) => {
-        const id = message.id ?? uid();
-        const full: ChatMessage = {
-          id,
-          createdAt: nowIso(),
-          role: message.role,
-          content: message.content,
-          intent: message.intent,
-          crisis: message.crisis,
-        };
-        set((s) => ({
-          conversations: s.conversations.map((c) =>
-            c.id === conversationId
-              ? { ...c, updatedAt: nowIso(), messages: [...c.messages, full] }
-              : c,
-          ),
-        }));
-        return id;
-      },
+  addMessage: (conversationId, message) => {
+    const id = message.id ?? uid();
+    const full: ChatMessage = {
+      id,
+      createdAt: nowIso(),
+      role: message.role,
+      content: message.content,
+      intent: message.intent,
+      crisis: message.crisis,
+    };
+    set((s) => ({
+      conversations: s.conversations.map((c) =>
+        c.id === conversationId
+          ? { ...c, updatedAt: nowIso(), messages: [...c.messages, full] }
+          : c,
+      ),
+    }));
+    return id;
+  },
 
-      updateMessage: (conversationId, messageId, patch) => {
-        set((s) => ({
-          conversations: s.conversations.map((c) =>
-            c.id !== conversationId
-              ? c
-              : {
-                  ...c,
-                  updatedAt: nowIso(),
-                  messages: c.messages.map((m) => (m.id === messageId ? { ...m, ...patch } : m)),
-                },
-          ),
-        }));
-      },
+  updateMessage: (conversationId, messageId, patch) => {
+    set((s) => ({
+      conversations: s.conversations.map((c) =>
+        c.id !== conversationId
+          ? c
+          : {
+              ...c,
+              updatedAt: nowIso(),
+              messages: c.messages.map((m) => (m.id === messageId ? { ...m, ...patch } : m)),
+            },
+      ),
+    }));
+  },
 
-      appendToMessage: (conversationId, messageId, chunk) => {
-        set((s) => ({
-          conversations: s.conversations.map((c) =>
-            c.id !== conversationId
-              ? c
-              : {
-                  ...c,
-                  updatedAt: nowIso(),
-                  messages: c.messages.map((m) =>
-                    m.id === messageId ? { ...m, content: m.content + chunk } : m,
-                  ),
-                },
-          ),
-        }));
-      },
-
-      markPulseAsked: (conversationId) => {
-        set((s) => ({
-          conversations: s.conversations.map((c) =>
-            c.id === conversationId ? { ...c, pulseAsked: true } : c,
-          ),
-        }));
-      },
-
-      addMemories: (items) => {
-        const created: MemoryItem[] = items.map((item) => ({
-          ...item,
-          id: uid(),
-          createdAt: nowIso(),
-          updatedAt: nowIso(),
-        }));
-        if (created.length === 0) return created;
-        set((s) => ({ memories: [...created, ...s.memories] }));
-        return created;
-      },
-
-      upsertMemory: (item) => {
-        set((s) => {
-          const exists = s.memories.some((m) => m.id === item.id);
-          if (exists) {
-            return {
-              memories: s.memories.map((m) =>
-                m.id === item.id ? { ...item, updatedAt: nowIso() } : m,
+  appendToMessage: (conversationId, messageId, chunk) => {
+    set((s) => ({
+      conversations: s.conversations.map((c) =>
+        c.id !== conversationId
+          ? c
+          : {
+              ...c,
+              updatedAt: nowIso(),
+              messages: c.messages.map((m) =>
+                m.id === messageId ? { ...m, content: m.content + chunk } : m,
               ),
-            };
-          }
-          return { memories: [{ ...item, updatedAt: nowIso() }, ...s.memories] };
-        });
-      },
+            },
+      ),
+    }));
+  },
 
-      deleteMemory: (id) => {
-        set((s) => ({ memories: s.memories.filter((m) => m.id !== id) }));
-      },
+  markPulseAsked: (conversationId) => {
+    set((s) => ({
+      conversations: s.conversations.map((c) =>
+        c.id === conversationId ? { ...c, pulseAsked: true } : c,
+      ),
+    }));
+  },
 
-      openConversation: (id) => {
-        if (get().conversations.some((c) => c.id === id)) {
-          set({ activeConversationId: id });
-        }
-      },
+  addMemories: (items) => {
+    const created: MemoryItem[] = items.map((item) => ({
+      ...item,
+      id: uid(),
+      createdAt: nowIso(),
+      updatedAt: nowIso(),
+    }));
+    if (created.length === 0) return created;
+    set((s) => ({ memories: [...created, ...s.memories] }));
+    return created;
+  },
 
-      upsertLetter: (item) => {
-        set((s) => {
-          const letters = s.letters ?? [];
-          const exists = letters.some((l) => l.id === item.id);
-          if (exists) {
-            return {
-              letters: letters.map((l) =>
-                l.id === item.id ? { ...item, updatedAt: nowIso() } : l,
-              ),
-            };
-          }
-          return { letters: [{ ...item, updatedAt: nowIso() }, ...letters] };
-        });
-      },
-
-      deleteLetter: (id) => {
-        set((s) => ({ letters: (s.letters ?? []).filter((l) => l.id !== id) }));
-      },
-
-      setCheckIns: (patch) => {
-        set((s) => ({ checkIns: { ...s.checkIns, ...patch } }));
-      },
-
-      snoozeCheckIn: () => {
-        set((s) => ({
-          checkIns: { ...s.checkIns, lastShownAt: nowIso() },
-        }));
-      },
-
-      answerCheckIn: (mood, note) => {
-        const entry: CheckInEntry = {
-          id: uid(),
-          at: nowIso(),
-          mood,
-          note: note.trim(),
-        };
-        set((s) => ({
-          checkIns: {
-            ...s.checkIns,
-            lastShownAt: nowIso(),
-            lastAnsweredAt: nowIso(),
-            entries: [entry, ...s.checkIns.entries],
-          },
-        }));
-      },
-
-      addPulse: (conversationId, value) => {
-        set((s) => ({
-          pulses: [
-            { id: uid(), at: nowIso(), value, conversationId },
-            ...s.pulses,
-          ],
-          conversations: s.conversations.map((c) =>
-            c.id === conversationId ? { ...c, pulseAsked: true } : c,
+  upsertMemory: (item) => {
+    set((s) => {
+      const exists = s.memories.some((m) => m.id === item.id);
+      if (exists) {
+        return {
+          memories: s.memories.map((m) =>
+            m.id === item.id ? { ...item, updatedAt: nowIso() } : m,
           ),
-        }));
-      },
-
-      exportData: () => {
-        const s = get();
-        const payload = {
-          name: s.name,
-          concerns: s.concerns,
-          conversations: s.conversations,
-          memories: s.memories,
-          letters: s.letters ?? [],
-          checkIns: s.checkIns,
-          pulses: s.pulses,
-          createdAt: s.createdAt,
-          exportedAt: nowIso(),
         };
-        return JSON.stringify(payload, null, 2);
+      }
+      return { memories: [{ ...item, updatedAt: nowIso() }, ...s.memories] };
+    });
+  },
+
+  deleteMemory: (id) => {
+    set((s) => ({ memories: s.memories.filter((m) => m.id !== id) }));
+  },
+
+  openConversation: (id) => {
+    if (get().conversations.some((c) => c.id === id)) {
+      set({ activeConversationId: id });
+    }
+  },
+
+  upsertLetter: (item) => {
+    set((s) => {
+      const letters = s.letters ?? [];
+      const exists = letters.some((l) => l.id === item.id);
+      if (exists) {
+        return {
+          letters: letters.map((l) => (l.id === item.id ? { ...item, updatedAt: nowIso() } : l)),
+        };
+      }
+      return { letters: [{ ...item, updatedAt: nowIso() }, ...letters] };
+    });
+  },
+
+  deleteLetter: (id) => {
+    set((s) => ({ letters: (s.letters ?? []).filter((l) => l.id !== id) }));
+  },
+
+  setCheckIns: (patch) => {
+    set((s) => ({ checkIns: { ...s.checkIns, ...patch } }));
+  },
+
+  snoozeCheckIn: () => {
+    set((s) => ({
+      checkIns: { ...s.checkIns, lastShownAt: nowIso() },
+    }));
+  },
+
+  answerCheckIn: (mood, note) => {
+    const entry: CheckInEntry = {
+      id: uid(),
+      at: nowIso(),
+      mood,
+      note: note.trim(),
+    };
+    set((s) => ({
+      checkIns: {
+        ...s.checkIns,
+        lastShownAt: nowIso(),
+        lastAnsweredAt: nowIso(),
+        entries: [entry, ...s.checkIns.entries],
       },
+    }));
+  },
+
+  addPulse: (conversationId, value) => {
+    set((s) => ({
+      pulses: [{ id: uid(), at: nowIso(), value, conversationId }, ...s.pulses],
+      conversations: s.conversations.map((c) =>
+        c.id === conversationId ? { ...c, pulseAsked: true } : c,
+      ),
+    }));
+  },
+
+  exportData: () => {
+    const s = get();
+    const payload = {
+      name: s.name,
+      concerns: s.concerns,
+      conversations: s.conversations,
+      memories: s.memories,
+      letters: s.letters ?? [],
+      checkIns: s.checkIns,
+      pulses: s.pulses,
+      createdAt: s.createdAt,
+      exportedAt: nowIso(),
+    };
+    return JSON.stringify(payload, null, 2);
+  },
 
       wipeAll: () => {
-        set({ ...emptyState(), hydrated: true, createdAt: nowIso() });
+        // Account deletion is followed by sign-out. Keep the cleared state
+        // non-syncable so the old account cannot be recreated by a debounce.
+        set({ ...emptyState(), hydrated: false, createdAt: nowIso() });
       },
 
-      replaceFromCloud: (snap) => {
-        set({
-          ...emptyState(),
-          ...snap,
-          preferences: { ...emptyState().preferences, ...snap.preferences },
-          notifications: snap.notifications ?? [],
-          letters: snap.letters ?? [],
-          hydrated: true,
-        });
-      },
-    }),
-    {
-      name: "still-companion",
-      skipHydration: true,
-      partialize: (s) => {
-        const { hydrated: _h, ...rest } = s;
-        void _h;
-        return rest;
-      },
-      onRehydrateStorage: () => (state) => {
-        if (state && !state.letters) state.letters = [];
-        state?.setHydrated();
-      },
-    },
-  ),
-);
+  replaceFromCloud: (snap) => {
+    set({
+      ...emptyState(),
+      ...snap,
+      preferences: { ...emptyState().preferences, ...snap.preferences },
+      notifications: snap.notifications ?? [],
+      letters: snap.letters ?? [],
+      hydrated: true,
+    });
+  },
+}));
 
 export function checkInIsDue(state: StillState): boolean {
   if (!state.checkIns.enabled) return false;

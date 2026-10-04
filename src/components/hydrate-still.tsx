@@ -4,6 +4,9 @@ import { useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useStillStore } from "@/lib/store/still-store";
 import type { StillState } from "@/lib/companion/types";
+import { diffCloudSnapshots, type CloudSnapshot } from "@/lib/store/cloud-sync";
+
+type SyncSnapshot = CloudSnapshot;
 
 function snapshotOf(s: StillState) {
   return {
@@ -25,38 +28,52 @@ function snapshotOf(s: StillState) {
 export function HydrateStill() {
   const { status } = useSession();
   const cloudReady = useRef(false);
-  const skipNext = useRef(false);
+  const cloudSnapshot = useRef<SyncSnapshot | null>(null);
+  const syncTimer = useRef<number | undefined>(undefined);
+  const syncQueue = useRef(Promise.resolve());
 
   useEffect(() => {
-    const mark = () => useStillStore.getState().setHydrated();
-    const unsub = useStillStore.persist.onFinishHydration(mark);
-    if (useStillStore.persist.hasHydrated()) mark();
-    else void useStillStore.persist.rehydrate();
-    const fallback = window.setTimeout(mark, 800);
-    return () => {
-      unsub();
-      window.clearTimeout(fallback);
-    };
+    // Older releases persisted the complete journal under this key. Remove it
+    // on the next visit; current releases keep journal rows only in the cloud.
+    try {
+      window.localStorage.removeItem("still-companion");
+    } catch {
+      /* storage can be unavailable in strict privacy modes */
+    }
   }, []);
 
   useEffect(() => {
+    if (status === "loading") return;
     if (status !== "authenticated") {
       cloudReady.current = false;
+      cloudSnapshot.current = null;
+      useStillStore.getState().resetForCloudLoad();
+      useStillStore.getState().setHydrated();
       return;
     }
+
     let cancelled = false;
     cloudReady.current = false;
+    cloudSnapshot.current = null;
+    useStillStore.getState().resetForCloudLoad();
     void (async () => {
       try {
-        const res = await fetch("/api/still");
-        if (!res.ok || cancelled) return;
-        const data = (await res.json()) as { snapshot?: ReturnType<typeof snapshotOf> };
-        if (data.snapshot) {
-          skipNext.current = true;
-          useStillStore.getState().replaceFromCloud(data.snapshot);
-        }
+        const response = await fetch("/api/still");
+        if (!response.ok) return;
+        const data = (await response.json()) as { snapshot?: Omit<StillState, "hydrated"> };
+        if (cancelled || !data.snapshot) return;
+        cloudSnapshot.current = {
+          ...data.snapshot,
+          activeConversationId: data.snapshot.activeConversationId ?? null,
+          letters: data.snapshot.letters ?? [],
+          notifications: data.snapshot.notifications ?? [],
+        };
+        useStillStore.getState().replaceFromCloud(data.snapshot);
+        cloudReady.current = true;
+      } catch (error) {
+        console.error("[still] cloud hydration failed", error);
       } finally {
-        if (!cancelled) cloudReady.current = true;
+        if (!cancelled) useStillStore.getState().setHydrated();
       }
     })();
     return () => {
@@ -66,26 +83,41 @@ export function HydrateStill() {
 
   useEffect(() => {
     if (status !== "authenticated") return;
-    let timer: number | undefined;
-    const unsub = useStillStore.subscribe((s) => {
-      if (!cloudReady.current || !s.hydrated) return;
-      if (skipNext.current) {
-        skipNext.current = false;
-        return;
-      }
-      window.clearTimeout(timer);
-      timer = window.setTimeout(() => {
-        const snap = snapshotOf(useStillStore.getState());
-        void fetch("/api/still", {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ snapshot: snap }),
-        });
-      }, 700);
+
+    const scheduleSync = () => {
+      window.clearTimeout(syncTimer.current);
+      syncTimer.current = window.setTimeout(() => {
+        if (!cloudReady.current || !cloudSnapshot.current || !useStillStore.getState().hydrated)
+          return;
+        const target = snapshotOf(useStillStore.getState());
+        const operations = diffCloudSnapshots(cloudSnapshot.current, target);
+        if (!operations.length) return;
+
+        syncQueue.current = syncQueue.current
+          .then(async () => {
+            const response = await fetch("/api/still", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ operations }),
+            });
+            if (!response.ok) throw new Error(`Cloud sync failed (${response.status})`);
+            cloudSnapshot.current = target;
+          })
+          .catch((error) => {
+            console.error("[still] incremental sync failed", error);
+            window.clearTimeout(syncTimer.current);
+            syncTimer.current = window.setTimeout(scheduleSync, 1500);
+          });
+      }, 500);
+    };
+
+    const unsubscribe = useStillStore.subscribe((state) => {
+      if (!state.hydrated || !cloudReady.current) return;
+      scheduleSync();
     });
     return () => {
-      unsub();
-      window.clearTimeout(timer);
+      unsubscribe();
+      window.clearTimeout(syncTimer.current);
     };
   }, [status]);
 

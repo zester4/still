@@ -25,7 +25,7 @@ kept in Patterns and refreshed when the week changes. Accounts also support emai
 password changes, password recovery, and signing out every session. Summaries and reflections can
 be erased with the account from You.
 
-Data is stored per account (Neon + Drizzle). A copy can also live on this device. Memory is user-controlled: Still can suggest a memory, but it waits for approval before keeping it.
+Data is stored per account (Neon + Drizzle). Conversations, messages, memory, letters, check-ins, and pulses sync as idempotent row operations, so one tab does not replace another tab's journal. The browser keeps only temporary in-memory state while a signed-in page is open; journal content is not persisted to localStorage. Memory is user-controlled: Still can suggest a memory, but it waits for approval before keeping it.
 
 ## Stack
 

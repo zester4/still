@@ -45,7 +45,10 @@ export function YouPage() {
   const [securityPending, setSecurityPending] = useState(false);
   const [verificationStatus, setVerificationStatus] = useState<string | null>(null);
 
-  const pattern = useMemo(() => summarizeIntents(intentPattern(useStillStore.getState())), [conversations]);
+  const pattern = useMemo(
+    () => summarizeIntents(intentPattern(useStillStore.getState())),
+    [conversations],
+  );
 
   function savePreference(patch: Partial<typeof preferences>) {
     setPreferences(patch);
@@ -94,14 +97,20 @@ export function YouPage() {
     setVerificationStatus(null);
     const response = await fetch("/api/auth/resend-verification", { method: "POST" });
     const data = (await response.json().catch(() => ({}))) as { error?: string };
-    setVerificationStatus(response.ok ? "A fresh confirmation link is on its way." : data.error ?? "Could not send the email.");
+    setVerificationStatus(
+      response.ok
+        ? "A fresh confirmation link is on its way."
+        : (data.error ?? "Could not send the email."),
+    );
   }
 
   return (
     <div className="app-page mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 py-6 sm:py-8">
       <BackLink fallback="/talk" className="mb-3" />
       <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted">Settings</p>
-      <h1 className="font-display mt-1 text-2xl font-medium tracking-tight sm:text-3xl">Your space is yours.</h1>
+      <h1 className="font-display mt-1 text-2xl font-medium tracking-tight sm:text-3xl">
+        Your space is yours.
+      </h1>
       <p className="mt-2 text-sm leading-relaxed text-muted">
         Here since {format(new Date(createdAt), "MMMM d, yyyy")}. {conversations.length}{" "}
         {conversations.length === 1 ? "page" : "pages"} of talk. {memories.length} remembered.
@@ -117,7 +126,9 @@ export function YouPage() {
       </section>
 
       <section className="mt-4 rounded-xl bg-surface p-5 shadow-[var(--shadow-border)]">
-        <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted">Preferences</p>
+        <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted">
+          Preferences
+        </p>
         <p className="mt-2 text-sm leading-relaxed text-muted">
           Keep the parts of Still that help, and change them whenever you need.
         </p>
@@ -175,14 +186,23 @@ export function YouPage() {
         <div className="mt-3 rounded-lg bg-surface-2 px-3 py-3">
           <p className="text-sm font-medium">Email confirmation</p>
           <p className="mt-1 text-xs text-muted">
-            {session?.user?.emailConfirmed ? "Confirmed. Your account email is verified." : "Not confirmed yet. Confirming your email helps keep your space secure."}
+            {session?.user?.emailConfirmed
+              ? "Confirmed. Your account email is verified."
+              : "Not confirmed yet. Confirming your email helps keep your space secure."}
           </p>
           {!session?.user?.emailConfirmed ? (
-            <Button variant="quiet" size="sm" className="mt-3" onClick={() => void resendVerification()}>
+            <Button
+              variant="quiet"
+              size="sm"
+              className="mt-3"
+              onClick={() => void resendVerification()}
+            >
               Send confirmation email
             </Button>
           ) : null}
-          {verificationStatus ? <p className="mt-2 text-xs text-muted">{verificationStatus}</p> : null}
+          {verificationStatus ? (
+            <p className="mt-2 text-xs text-muted">{verificationStatus}</p>
+          ) : null}
         </div>
         <div className="mt-3">
           <Button
@@ -199,15 +219,32 @@ export function YouPage() {
 
       <section className="mt-4 rounded-xl bg-surface p-5 shadow-[var(--shadow-border)]">
         <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted">Security</p>
-        <h2 className="font-display mt-2 text-2xl font-medium tracking-tight">Keep your key yours.</h2>
+        <h2 className="font-display mt-2 text-2xl font-medium tracking-tight">
+          Keep your key yours.
+        </h2>
         <form className="mt-4 grid gap-3" onSubmit={(event) => void changePassword(event)}>
           <div>
             <Label htmlFor="current-password">Current password</Label>
-            <PasswordInput id="current-password" className="mt-1.5" autoComplete="current-password" value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)} required />
+            <PasswordInput
+              id="current-password"
+              className="mt-1.5"
+              autoComplete="current-password"
+              value={currentPassword}
+              onChange={(event) => setCurrentPassword(event.target.value)}
+              required
+            />
           </div>
           <div>
             <Label htmlFor="settings-new-password">New password</Label>
-            <PasswordInput id="settings-new-password" className="mt-1.5" autoComplete="new-password" minLength={8} value={newPassword} onChange={(event) => setNewPassword(event.target.value)} required />
+            <PasswordInput
+              id="settings-new-password"
+              className="mt-1.5"
+              autoComplete="new-password"
+              minLength={8}
+              value={newPassword}
+              onChange={(event) => setNewPassword(event.target.value)}
+              required
+            />
           </div>
           {passwordStatus ? <p className="text-sm text-muted">{passwordStatus}</p> : null}
           <div className="flex flex-wrap gap-2">
@@ -226,7 +263,9 @@ export function YouPage() {
             </Button>
           </div>
         </form>
-        <p className="mt-3 text-xs leading-relaxed text-subtle">Signing out all sessions ends access on every device, including this one.</p>
+        <p className="mt-3 text-xs leading-relaxed text-subtle">
+          Signing out all sessions ends access on every device, including this one.
+        </p>
       </section>
 
       <section className="mt-4 rounded-xl bg-surface p-5 shadow-[var(--shadow-border)]">
@@ -285,16 +324,14 @@ export function YouPage() {
         <h2 className="font-display text-2xl font-medium tracking-tight">What this is</h2>
         <div className="mt-3 space-y-3 text-sm leading-relaxed text-muted">
           <p>
-            Still is an AI companion. It is not a therapist, not a clinician, and not a crisis service.
-            It does not diagnose, prescribe, or replace psychiatric or psychological care.
+            Still is an AI companion. It is not a therapist, not a clinician, and not a crisis
+            service. It does not diagnose, prescribe, or replace psychiatric or psychological care.
           </p>
           <p>
-            In some places, including Illinois, using AI as therapy is restricted or banned. Still is
-            designed as a companion — a place to talk — and says so plainly.
+            In some places, including Illinois, using AI as therapy is restricted or banned. Still
+            is designed as a companion — a place to talk — and says so plainly.
           </p>
-          <p>
-            Memory, talks, and letters are kept with your account. Export a copy, or erase it.
-          </p>
+          <p>Memory, talks, and letters are kept with your account. Export a copy, or erase it.</p>
         </div>
         <div className="mt-4 flex flex-wrap gap-2">
           <Button variant="quiet" asChild>
@@ -324,7 +361,8 @@ export function YouPage() {
       <section className="mt-10">
         <h2 className="font-display text-2xl font-medium tracking-tight">If you need a person</h2>
         <p className="mt-2 text-sm leading-relaxed text-muted">
-          Always available. Not only in a crisis. You do not have to wait until it feels like an emergency.
+          Always available. Not only in a crisis. You do not have to wait until it feels like an
+          emergency.
         </p>
         <CrisisCard />
       </section>
@@ -334,7 +372,9 @@ export function YouPage() {
       <section>
         <h2 className="font-display text-2xl font-medium tracking-tight">Your data</h2>
         <p className="mt-2 text-sm leading-relaxed text-muted">
-        Conversations, memory, check-ins, and pulse answers are kept with your account, and a copy stays on this device. Export, or erase.
+          Conversations, memory, check-ins, and pulse answers are kept with your account. The open
+          page uses temporary browser memory; it does not keep a journal copy on this device.
+          Export, or erase.
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
           <Button variant="quiet" onClick={download}>
@@ -356,34 +396,37 @@ export function YouPage() {
           <DialogHeader>
             <DialogTitle>Erase everything?</DialogTitle>
             <DialogDescription>
-              Your account, talks, memory, check-ins, letters, and answers will be removed from this account and this device.
-              This cannot be undone unless you already exported.
+              Your account, talks, memory, check-ins, letters, and answers will be removed from the
+              server. The open page will be cleared too. This cannot be undone unless you already
+              exported.
             </DialogDescription>
           </DialogHeader>
           <div className="mt-4 flex justify-end gap-2">
             <Button variant="ghost" onClick={() => setConfirmWipe(false)}>
               Keep it
             </Button>
-          <Button
-            variant="crisis"
-            disabled={erasing}
-            onClick={async () => {
-              setErasing(true);
-              setEraseError(null);
-              try {
-                const response = await fetch("/api/still", { method: "DELETE" });
-                if (!response.ok) throw new Error("The account could not be erased.");
-                wipeAll();
-                setConfirmWipe(false);
-                await signOut({ callbackUrl: "/" });
-              } catch (error) {
-                setEraseError(error instanceof Error ? error.message : "The account could not be erased.");
-                setErasing(false);
-              }
-            }}
-          >
-            {erasing ? "Erasing…" : "Erase everything"}
-          </Button>
+            <Button
+              variant="crisis"
+              disabled={erasing}
+              onClick={async () => {
+                setErasing(true);
+                setEraseError(null);
+                try {
+                  const response = await fetch("/api/still", { method: "DELETE" });
+                  if (!response.ok) throw new Error("The account could not be erased.");
+                  wipeAll();
+                  setConfirmWipe(false);
+                  await signOut({ callbackUrl: "/" });
+                } catch (error) {
+                  setEraseError(
+                    error instanceof Error ? error.message : "The account could not be erased.",
+                  );
+                  setErasing(false);
+                }
+              }}
+            >
+              {erasing ? "Erasing…" : "Erase everything"}
+            </Button>
           </div>
           {eraseError ? <p className="mt-3 text-sm text-crisis">{eraseError}</p> : null}
         </DialogContent>
@@ -392,7 +435,15 @@ export function YouPage() {
   );
 }
 
-function Place({ to, title, body }: { to: "/pages" | "/quiet" | "/letters" | "/patterns" | "/memory" | "/check-ins"; title: string; body: string }) {
+function Place({
+  to,
+  title,
+  body,
+}: {
+  to: "/pages" | "/quiet" | "/letters" | "/patterns" | "/memory" | "/check-ins";
+  title: string;
+  body: string;
+}) {
   return (
     <Link
       to={to}
